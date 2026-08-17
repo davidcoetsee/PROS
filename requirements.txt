@@ -1,0 +1,5 @@
+# Runtime dependencies. tkinter/Tcl/Tk ships with the official CPython build.
+pikepdf==10.11.0
+Pillow==12.3.0
+lxml==6.1.1
+packaging==26.3
