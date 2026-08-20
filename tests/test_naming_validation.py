@@ -45,15 +45,16 @@ def test_ranked_naming_matrix(tmp_path: Path) -> None:
         tmp_path,
         remove_password=True,
         compress_pdf=True,
+        convert_to_grayscale=True,
         structure_mode=StructureMode.JOIN,
         input_paths=[source, tmp_path / "Other.pdf"],
         passwords=[None, None],
         output_base="",
     )
     assert normalize_output_base("  Report.PDF  ") == "Report"
-    assert suggest_output_base(request) == "Accounts - Join - Pwd_Rmv - Cprs"
+    assert suggest_output_base(request) == "Accounts - Join - Pwd_Rmv - Cprs - Grey"
     assert build_output_paths(request) == (
-        tmp_path / "Accounts - Join - Pwd_Rmv - Cprs.pdf",
+        tmp_path / "Accounts - Join - Pwd_Rmv - Cprs - Grey.pdf",
     )
 
     request.structure_mode = StructureMode.SPLIT
@@ -62,9 +63,60 @@ def test_ranked_naming_matrix(tmp_path: Path) -> None:
     request.split_points = [2, 5]
     request.output_base = "Report"
     assert build_output_paths(request) == (
-        tmp_path / "Report - Pwd_Rmv - Cprs - Part 1.pdf",
-        tmp_path / "Report - Pwd_Rmv - Cprs - Part 2.pdf",
-        tmp_path / "Report - Pwd_Rmv - Cprs - Part 3.pdf",
+        tmp_path / "Report - Pwd_Rmv - Cprs - Grey - Part 1.pdf",
+        tmp_path / "Report - Pwd_Rmv - Cprs - Grey - Part 2.pdf",
+        tmp_path / "Report - Pwd_Rmv - Cprs - Grey - Part 3.pdf",
+    )
+
+
+@pytest.mark.parametrize(
+    ("mode", "remove", "compress", "gray", "expected"),
+    [
+        (StructureMode.NEITHER, False, False, True, "Report - Grey.pdf"),
+        (StructureMode.NEITHER, True, False, True, "Report - Pwd_Rmv - Grey.pdf"),
+        (StructureMode.NEITHER, False, True, True, "Report - Cprs - Grey.pdf"),
+        (
+            StructureMode.JOIN,
+            True,
+            True,
+            True,
+            "Report - Join - Pwd_Rmv - Cprs - Grey.pdf",
+        ),
+    ],
+)
+def test_grey_suffix_order_is_stable(
+    tmp_path: Path,
+    mode: StructureMode,
+    remove: bool,
+    compress: bool,
+    gray: bool,
+    expected: str,
+) -> None:
+    input_count = 2 if mode is StructureMode.JOIN else 1
+    request = _request(
+        tmp_path,
+        remove_password=remove,
+        compress_pdf=compress,
+        convert_to_grayscale=gray,
+        structure_mode=mode,
+        input_paths=[tmp_path / f"input-{index}.pdf" for index in range(input_count)],
+        passwords=[None] * input_count,
+    )
+    assert build_output_paths(request) == (tmp_path / expected,)
+
+
+def test_split_places_part_after_grey(tmp_path: Path) -> None:
+    request = _request(
+        tmp_path,
+        structure_mode=StructureMode.SPLIT,
+        input_paths=[tmp_path / "source.pdf"],
+        passwords=[None],
+        split_points=[2],
+        convert_to_grayscale=True,
+    )
+    assert build_output_paths(request) == (
+        tmp_path / "Report - Grey - Part 1.pdf",
+        tmp_path / "Report - Grey - Part 2.pdf",
     )
 
 

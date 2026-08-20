@@ -1,4 +1,4 @@
-"""Opt-in acceptance test for the specification's 120 MB requirement."""
+"""Opt-in acceptance test for the specification's 180 MiB requirement."""
 
 from __future__ import annotations
 
@@ -65,7 +65,7 @@ def _write_large_valid_pdf(path: Path, content_bytes: int) -> None:
             output.write(b"\n")
         output.write(b"endstream\nendobj\n")
 
-        write_object(5, b"<< /Title (PROS 120 MB acceptance fixture) >>")
+        write_object(5, b"<< /Title (PROS 180 MiB acceptance fixture) >>")
         xref_offset = output.tell()
         output.write(b"xref\n0 6\n")
         output.write(b"0000000000 65535 f \n")
@@ -78,15 +78,15 @@ def _write_large_valid_pdf(path: Path, content_bytes: int) -> None:
 
 
 @pytest.mark.large
-def test_compresses_pdf_larger_than_120_mb_without_touching_source(
+def test_compresses_pdf_larger_than_180_mib_without_touching_source(
     tmp_path: Path,
 ) -> None:
     if os.environ.get("PROS_RUN_LARGE_TEST") != "1":
-        pytest.skip("set PROS_RUN_LARGE_TEST=1 to run the 120 MB acceptance test")
+        pytest.skip("set PROS_RUN_LARGE_TEST=1 to run the 180 MiB acceptance test")
 
     source = tmp_path / "large source.pdf"
-    _write_large_valid_pdf(source, 121 * 1024 * 1024)
-    assert source.stat().st_size > 120 * 1024 * 1024
+    _write_large_valid_pdf(source, 181 * 1024 * 1024)
+    assert source.stat().st_size > 180 * 1024 * 1024
     source_hash = _sha256(source)
 
     request = JobRequest(

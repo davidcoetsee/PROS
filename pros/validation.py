@@ -9,12 +9,19 @@ import tempfile
 from collections.abc import Iterable, Sequence
 from pathlib import Path
 
-from .models import JobRequest, PdfInfo, PreflightReport, StructureMode
+from .models import (
+    CompressionLevel,
+    JobRequest,
+    PdfInfo,
+    PreflightReport,
+    StructureMode,
+)
 from .naming import build_output_paths, normalize_output_base, suggest_output_base
 
 MAX_JOIN_INPUTS = 12
 MAX_SPLIT_OUTPUTS = 12
 LARGE_FILE_NOTICE_BYTES = 120 * 1024 * 1024
+LARGE_FILE_ACCEPTANCE_BYTES = 180 * 1024 * 1024
 
 _INVALID_WINDOWS_NAME = re.compile(r'[<>:"/\\|?*]|[\x00-\x1f]')
 _RESERVED_WINDOWS_STEMS = {
@@ -142,8 +149,8 @@ def _risk_requires_warning(risk: str, mode: StructureMode) -> bool:
     return "digital signature" in lowered or mode is not StructureMode.NEITHER
 
 
-def preflight(request: JobRequest) -> PreflightReport:
-    """Inspect every input and authoritatively validate the complete job."""
+def preflight(request: JobRequest, *, for_estimate: bool = False) -> PreflightReport:
+    """Inspect and validate a job; estimates skip checks that require writing."""
 
     # Local import avoids a module cycle while keeping inspect_pdf as the public
     # engine entry point required by callers.
@@ -160,8 +167,17 @@ def preflight(request: JobRequest) -> PreflightReport:
         mode = StructureMode.NEITHER
         errors.append("Select Join, Split, or Neither.")
 
-    if not (request.remove_password or request.compress_pdf or mode is not StructureMode.NEITHER):
+    if not (
+        request.remove_password
+        or request.compress_pdf
+        or request.convert_to_grayscale
+        or mode is not StructureMode.NEITHER
+    ):
         errors.append("Select at least one PDF-processing function.")
+    try:
+        CompressionLevel(request.compression_level)
+    except ValueError:
+        errors.append("The saved compression setting is not supported.")
 
     input_count = len(request.input_paths)
     if mode is StructureMode.JOIN:
@@ -174,7 +190,9 @@ def preflight(request: JobRequest) -> PreflightReport:
             errors.append("Split requires exactly one input PDF.")
     else:
         if input_count != 1:
-            errors.append("Password removal or compression without Join or Split requires one input PDF.")
+            errors.append(
+                "Password removal, compression, or grayscale conversion without Join or Split requires one input PDF."
+            )
         if request.split_points:
             errors.append("Split points are permitted only when Split is selected.")
 
@@ -233,6 +251,16 @@ def preflight(request: JobRequest) -> PreflightReport:
     errors.extend(validate_output_base(proposed_stem))
 
     output_paths = build_output_paths(request) if proposed_stem else ()
+    if for_estimate:
+        return PreflightReport(
+            valid=not errors,
+            input_info=tuple(input_info),
+            output_paths=tuple(output_paths),
+            split_ranges=split_ranges,
+            errors=_unique(errors),
+            warnings=_unique(warnings),
+        )
+
     output_dir = Path(request.output_dir)
     if not output_dir.exists():
         errors.append("The selected output folder does not exist.")
@@ -253,7 +281,14 @@ def preflight(request: JobRequest) -> PreflightReport:
     output_space_needed = max(16 * 1024 * 1024, total_input_size)
     staging_space_needed = max(
         64 * 1024 * 1024,
-        total_input_size * (3 if request.compress_pdf else 2),
+        total_input_size
+        * (
+            5
+            if request.compress_pdf
+            else 4
+            if request.convert_to_grayscale
+            else 2
+        ),
     )
     if output_dir.is_dir():
         try:
@@ -298,6 +333,7 @@ def preflight(request: JobRequest) -> PreflightReport:
 
 
 __all__ = [
+    "LARGE_FILE_ACCEPTANCE_BYTES",
     "LARGE_FILE_NOTICE_BYTES",
     "MAX_JOIN_INPUTS",
     "MAX_SPLIT_OUTPUTS",

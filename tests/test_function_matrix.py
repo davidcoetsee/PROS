@@ -36,6 +36,7 @@ def _request(
     inputs: list[Path],
     passwords: list[str | None],
     split_points: list[int] | None = None,
+    gray: bool = False,
 ) -> JobRequest:
     return JobRequest(
         job_id=f"matrix-{mode.value}-{int(remove)}-{int(compress)}",
@@ -48,6 +49,7 @@ def _request(
         output_dir=folder,
         output_base="Matrix",
         staging_dir=folder / "stage",
+        convert_to_grayscale=gray,
     )
 
 
@@ -137,6 +139,50 @@ def test_mixed_protected_inputs_with_distinct_effective_passwords(tmp_path: Path
     with pikepdf.Pdf.open(result.output_paths[0]) as output:
         assert len(output.pages) == 3
         assert not output.is_encrypted
+
+
+@pytest.mark.parametrize("mode", list(StructureMode))
+@pytest.mark.parametrize("remove", [False, True])
+def test_grayscale_works_with_every_structure_and_password_mode(
+    tmp_path: Path,
+    mode: StructureMode,
+    remove: bool,
+) -> None:
+    folder = tmp_path / f"gray-{mode.value}-{int(remove)}"
+    folder.mkdir()
+    password = "gray-secret" if remove else None
+    first = folder / "first.pdf"
+    _make_pdf(first, 4, password)
+    inputs = [first]
+    passwords = [password]
+    split_points: list[int] = []
+    if mode is StructureMode.JOIN:
+        second = folder / "second.pdf"
+        _make_pdf(second, 2, password)
+        inputs.append(second)
+        passwords.append(password)
+    elif mode is StructureMode.SPLIT:
+        split_points = [2]
+
+    result = process_job(
+        _request(
+            folder,
+            remove=remove,
+            compress=False,
+            mode=mode,
+            inputs=inputs,
+            passwords=passwords,
+            split_points=split_points,
+            gray=True,
+        )
+    )
+
+    assert result.success, result.error
+    assert result.output_paths
+    assert all("Grey" in path.name and "Cprs" not in path.name for path in result.output_paths)
+    for output_path in result.output_paths:
+        with pikepdf.Pdf.open(output_path) as output:
+            assert not output.is_encrypted
 
 
 def test_wrong_password_blocks_job_before_output(tmp_path: Path) -> None:

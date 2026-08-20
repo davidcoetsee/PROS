@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from .models import JobRequest, JobResult
-from .pdf_engine import process_job
+from .models import EstimateResult, JobRequest, JobResult
+from .pdf_engine import estimate_job, process_job
 
 
 def _queue_put(progress_queue: Any, event: dict[str, object]) -> None:
@@ -44,4 +44,35 @@ def run_worker(
     return result
 
 
-__all__ = ["run_worker"]
+def run_estimate_worker(
+    request: JobRequest,
+    progress_queue: Any,
+    cancel_event: object | None,
+) -> EstimateResult:
+    """Run an estimate outside the GUI thread and publish one terminal result."""
+
+    result = estimate_job(
+        request,
+        progress=lambda event: _queue_put(progress_queue, event),
+        cancel_event=cancel_event,
+    )
+    _queue_put(
+        progress_queue,
+        {
+            "job_id": request.job_id,
+            "kind": "estimate_result",
+            "stage": "estimate",
+            "percent": 100 if result.success else 0,
+            "message": (
+                "Estimate ready"
+                if result.success
+                else result.error or "The estimate could not be completed."
+            ),
+            "path": None,
+            "result": result,
+        },
+    )
+    return result
+
+
+__all__ = ["run_estimate_worker", "run_worker"]

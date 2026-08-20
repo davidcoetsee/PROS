@@ -1,9 +1,10 @@
-# PROS
+# PROS 1.2.0
 
 PROS is a local Windows desktop utility for processing PDF files. It can remove
-known PDF passwords, compress PDFs, join multiple inputs, split an input at
-validated page boundaries, and write predictably named results without changing
-the source files.
+known PDF passwords, aggressively compress PDFs, convert supported colour
+content to grayscale independently of compression, join multiple inputs, split
+an input at validated page boundaries, and write predictably named results
+without changing the source files.
 
 The release is a single windowed `PROS.exe`. It uses Python's Tk interface and
 pikepdf/qpdf; it does **not** use Qt, PySide, or PyQt.
@@ -13,14 +14,51 @@ pikepdf/qpdf; it does **not** use Qt, PySide, or PyQt.
 1. Copy `PROS.exe` to a local folder on a 64-bit Windows 10 or Windows 11 PC.
 2. Double-click it. No Python installation or administrator access is required.
 3. Add one or more PDFs, supply passwords for encrypted inputs when needed,
-   select the processing options, and choose an output folder and base name.
+   select processing functions and output options, and choose an output folder
+   and base name.
 4. Review the preflight summary, then start the job. Keep the application open
    until it reports completion.
 
 PROS leaves input files unchanged. Outputs are staged and validated before they
-are published to the selected folder. Keep enough free disk space for the input,
-temporary output, and final output; several times the input size is prudent for
-large files.
+are published to the selected folder.
+
+## Compression, grayscale, and progress
+
+PROS uses one aggressive compression profile: the profile previously called
+Ultra. It rewrites PDF structure, uses a JPEG quality target of 65, and may
+downsample supported large raster images toward 150 DPI. Compression is lossy;
+fine image detail and small scanned text may become softer. Always inspect
+important outputs before discarding any separate working copies.
+
+Grayscale converts supported embedded raster image objects and common
+DeviceRGB/DeviceCMYK colour operators in page and nested Form content. Ordinary
+text, vector fills, and vector strokes that use those common operators are
+therefore converted. ICC-based and spot colours, patterns, shadings, some
+transparency constructs, annotation or form-widget appearances, and masked or
+unusually encoded images may remain in their original colour. PROS retains such
+unsupported constructs and reports a warning so the output can be reviewed.
+Grayscale can be selected with or without compression.
+
+Automatic suffixes are ordered `Join`, `Pwd_Rmv`, `Cprs`, then `Grey`, followed
+by `Part N` for split outputs. For example, compression plus grayscale produces
+`Report - Cprs - Grey.pdf`, while grayscale alone produces
+`Report - Grey.pdf`.
+
+PROS does not show a pre-run estimate of runtime or output size. Progress shown
+at real processing boundaries and during saves comes from worker events. Between
+worker reports, the per-file compression meter advances periodically as a
+time-based guesstimate so the window stays responsive during native PDF work; it
+is not a byte-accurate measurement and can pause or advance unevenly. Worker
+events, the final completion message, and output validation are authoritative.
+
+Keep enough free disk space for the input, staging files, compression candidates,
+and final output; several times the combined input size is prudent. Compression
+and grayscale processing may decode an embedded image into memory, where its
+size is determined by pixel dimensions and colour channels rather than its
+compressed size in the PDF. A document near the 180 MiB acceptance size can
+therefore need multiple gigabytes of temporary disk space and memory when it
+contains very large scans. Close other memory-intensive applications before
+processing such a document.
 
 ## Offline and privacy behaviour
 
@@ -82,22 +120,29 @@ collected by PyInstaller's standard hooks.
 .\dist\PROS.exe --self-test .\build\manual-self-test
 ```
 
-The test creates a unique directory under the supplied path, generates a fixed
-one-page PDF, passes it through the real PROS compression engine, verifies that
-the source hash did not change, reopens and syntax-checks the output, and writes
-`selftest-result.json`. It makes no network calls.
+The test creates a unique directory under the supplied path and generates one
+fixed colour image/vector PDF. It processes that source once with compression
+plus grayscale and once with grayscale alone, checks the exact `Cprs - Grey`
+and `Grey` names, verifies that compression downsamples while grayscale alone
+preserves image dimensions, confirms that the source hash did not change,
+reopens and syntax-checks both outputs, and writes `selftest-result.json`. It
+makes no network calls.
 
 For release acceptance, also test on clean, offline Windows 10 and Windows 11
 x64 virtual machines that have no separate Python installation. Exercise paths
 containing spaces and non-ASCII characters, an encrypted PDF, invalid/corrupt
-input, a read-only output folder, cancellation, and a representative PDF larger
-than 120 MB. Reopen every resulting PDF with an independent viewer and preserve
+input, a read-only output folder, cancellation, aggressive compression,
+grayscale alone, compression plus grayscale, and a representative PDF larger
+than 180 MiB. Reopen every resulting PDF with an independent viewer and preserve
 the source SHA-256 before and after the test.
 
 ## Development checks
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest -q
+$env:PROS_RUN_LARGE_TEST = "1"
+.\.venv\Scripts\python.exe -m pytest -q tests\test_large_file_acceptance.py
+Remove-Item Env:\PROS_RUN_LARGE_TEST
 .\.venv\Scripts\python.exe -m ruff check .
 .\.venv\Scripts\python.exe -m piplicenses --with-license-file --with-notice-file
 ```
@@ -112,4 +157,3 @@ Copyright, licence, attribution, and source-availability information is in
 `THIRD_PARTY_NOTICES.txt`. The same file is embedded in `PROS.exe`. The notices
 describe the pinned build represented by this repository; regenerate and review
 the dependency inventory whenever any package or CPython build changes.
-

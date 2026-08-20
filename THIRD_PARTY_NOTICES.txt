@@ -1,10 +1,10 @@
 PROS THIRD-PARTY SOFTWARE NOTICES
 =================================
 
-This notice applies to the Windows x64 one-file build produced from the pinned
-requirements in this repository on 17 August 2026. It is embedded in PROS.exe
-and is also supplied with the source tree. PROS itself is a separate work; the
-terms below apply to the identified third-party components.
+This notice applies to the PROS 1.2.0 Windows x64 one-file build produced from
+the pinned requirements in this repository on 20 August 2026. It is embedded in
+PROS.exe and is also supplied with the source tree. PROS itself is a separate
+work; the terms below apply to the identified third-party components.
 
 No third-party author or contributor provides a warranty for PROS. Component
 names and trademarks are used only to identify their respective projects.

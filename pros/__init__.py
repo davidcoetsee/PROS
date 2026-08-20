@@ -1,10 +1,20 @@
 """PROS PDF processing application core package."""
 
-from .models import JobRequest, JobResult, PdfInfo, PreflightReport, StructureMode
+from .models import (
+    CompressionLevel,
+    EstimateResult,
+    JobRequest,
+    JobResult,
+    PdfInfo,
+    PreflightReport,
+    StructureMode,
+)
 
-__version__ = "1.0.0"
+__version__ = "1.2.0"
 
 __all__ = [
+    "CompressionLevel",
+    "EstimateResult",
     "JobRequest",
     "JobResult",
     "PdfInfo",

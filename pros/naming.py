@@ -33,6 +33,8 @@ def _automatic_suffixes(request: JobRequest) -> tuple[str, ...]:
         suffixes.append("Pwd_Rmv")
     if request.compress_pdf:
         suffixes.append("Cprs")
+    if request.convert_to_grayscale:
+        suffixes.append("Grey")
     return tuple(suffixes)
 
 

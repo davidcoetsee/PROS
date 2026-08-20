@@ -20,12 +20,20 @@ import tkinter as tk
 import uuid
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
+from enum import Enum
 from itertools import pairwise
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 from typing import Any
 
 from .models import JobRequest, JobResult, PdfInfo, StructureMode
+
+try:
+    from .models import CompressionLevel
+except ImportError:  # pragma: no cover - permits mixed-version source trees
+    class CompressionLevel(str, Enum):
+        STANDARD = "standard"
+        ULTRA = "ultra"
 from .naming import build_output_paths, normalize_output_base, suggest_output_base
 from .pdf_engine import inspect_pdf
 from .validation import (
@@ -45,12 +53,37 @@ try:
 except ImportError:  # pragma: no cover - compatibility with an early snapshot
     from .worker import worker_entry  # type: ignore[no-redef]
 
-
 TOTAL_JOB_TIMEOUT_SECONDS = 30 * 60
 NO_PROGRESS_TIMEOUT_SECONDS = 5 * 60
 CANCEL_GRACE_SECONDS = 12
 POLL_INTERVAL_MS = 100
 PASSWORD_DEBOUNCE_MS = 350
+
+HEADER_TAGLINE = (
+    "PROS - Free Basic PDF Editor: [P]asswords removed · file sizes [R]educed · "
+    "[O]rganise & join · [S]plit files"
+)
+LARGE_FILE_STATUS = "This file is larger than 120 MB and may take longer than usual to process"
+NO_PROGRESS_CANCELLING_STATUS = (
+    "No progress was detected for five minutes. We have requested safe cancellation "
+    "and are cleaning up temporary files."
+)
+NO_PROGRESS_CLEANUP_STATUS = "Cleanup is complete. No completed output file was created."
+NO_PROGRESS_FORCED_ERROR = (
+    "No progress was detected for five minutes. The job was forcibly stopped, and all "
+    "temporary files, partial files, and new output files created for this job were removed."
+)
+FORCED_CANCELLATION_ERROR = (
+    "Processing was cancelled because it did not show progress for five minutes. The task "
+    "did not stop in time, so it was forcibly ended. Any temporary, partial, or newly "
+    "created output files from this task were removed."
+)
+PROCESS_DISABLED_BG = "#d1d5db"
+PROCESS_DISABLED_FG = "#6b7280"
+PROCESS_ENABLED_BG = "#1769aa"
+PROCESS_ENABLED_FG = "#ffffff"
+SPLIT_INVALID_BG = "#ff5a5f"
+SPLIT_NORMAL_BG = "#ffffff"
 
 
 def _application_dir() -> Path:
@@ -108,8 +141,9 @@ class _SplitRow:
     frame: ttk.Frame
     label: ttk.Label
     variable: tk.StringVar
-    entry: ttk.Entry
+    entry: tk.Entry
     clear_after: str | None = None
+    validate_after: str | None = None
 
 
 class ProsApp(tk.Tk):
@@ -135,6 +169,16 @@ class ProsApp(tk.Tk):
         self._runtime_error = ""
         self._last_outputs: tuple[Path, ...] = ()
         self._last_destination: Path | None = None
+        self._last_status_line = ""
+        self._last_progress_log_key: tuple[str, int, str] | None = None
+        self._last_progress_signature: tuple[str, int, float] | None = None
+        self._progress_stage = ""
+        self._progress_file_index = 0
+        self._progress_file_count = 0
+        self._progress_target = "current PDF"
+        self._display_phase_percent = 0.0
+        self._synthetic_progress_interval = 1.0
+        self._next_synthetic_progress_at = 0.0
 
         self._inspection_generation = 0
         self._inspection_queue: queue.Queue[tuple[int, str, PdfInfo]] = queue.Queue()
@@ -154,9 +198,9 @@ class ProsApp(tk.Tk):
         self._timeout_reason: str | None = None
         self._terminal_received = False
         self._dead_process_polls = 0
-
         self.remove_password_var = tk.BooleanVar(value=False)
         self.compress_var = tk.BooleanVar(value=False)
+        self.grayscale_var = tk.BooleanVar(value=False)
         self.mode_var = tk.StringVar(value=StructureMode.NEITHER.value)
         self.input_folder_var = tk.StringVar(value=str(self.input_dir))
         self.use_common_password_var = tk.BooleanVar(value=False)
@@ -168,6 +212,9 @@ class ProsApp(tk.Tk):
         self.output_base_var = tk.StringVar(value="")
         self.stage_var = tk.StringVar(value="Ready")
         self.progress_var = tk.DoubleVar(value=0.0)
+        self.file_progress_var = tk.DoubleVar(value=0.0)
+        self.file_progress_text_var = tk.StringVar(value="No file is being processed.")
+        self.readiness_text_var = tk.StringVar(value="Not ready")
 
         self._configure_style()
         self._build_menu()
@@ -204,9 +251,10 @@ class ProsApp(tk.Tk):
             foreground="#777777",
         )
         style.configure("Primary.TButton", font=("Segoe UI", 9, "bold"))
+        style.map("Primary.TButton", foreground=[("disabled", "#777777")])
         style.configure("Danger.TLabel", foreground="#9b1c1c")
         style.configure("Hint.TLabel", foreground="#5f6b7a")
-        style.configure("Invalid.TEntry", fieldbackground="#ffe7e7")
+        style.configure("SectionHeading.TLabel", font=("Segoe UI", 10, "bold"))
 
     def _build_menu(self) -> None:
         menubar = tk.Menu(self)
@@ -240,12 +288,17 @@ class ProsApp(tk.Tk):
 
         header = ttk.Frame(self.main_content)
         header.pack(fill="x", pady=(0, 10))
-        ttk.Label(header, text="PROS", style="Title.TLabel").pack(side="left")
-        ttk.Label(
+        header.columnconfigure(1, weight=1)
+        self.title_label = ttk.Label(header, text="PROS", style="Title.TLabel")
+        self.title_label.grid(row=0, column=0, sticky="nw")
+        self.tagline_label = ttk.Label(
             header,
-            text="  Password removal · Compression · Order/Join · Split",
+            text=HEADER_TAGLINE.removeprefix("PROS"),
             style="Subtitle.TLabel",
-        ).pack(side="left", pady=(8, 0))
+            wraplength=840,
+            justify="left",
+        )
+        self.tagline_label.grid(row=0, column=1, sticky="ew", padx=(3, 0), pady=(7, 0))
 
         self._build_function_group()
         self._build_input_group()
@@ -259,6 +312,7 @@ class ProsApp(tk.Tk):
             self.main_content, text="Function Selection", style="Section.TLabelframe"
         )
         group.pack(fill="x", pady=5)
+        group.columnconfigure(5, weight=1)
         self.function_group = group
 
         self.remove_password_check = ttk.Checkbutton(
@@ -272,7 +326,7 @@ class ProsApp(tk.Tk):
             group,
             text="Compress PDF",
             variable=self.compress_var,
-            command=self._on_draft_changed,
+            command=self._on_compression_changed,
         )
         self.compress_check.grid(row=0, column=1, sticky="w", padx=(0, 30))
 
@@ -333,7 +387,7 @@ class ProsApp(tk.Tk):
             "protection": ("Protection", 105, "center"),
             "size": ("Size", 85, "e"),
             "pages": ("Pages", 65, "center"),
-            "status": ("Preflight status", 230, "w"),
+            "status": ("File check", 230, "w"),
         }
         for column, (title, width, anchor) in headings.items():
             self.input_tree.heading(column, text=title)
@@ -470,8 +524,22 @@ class ProsApp(tk.Tk):
         self._add_split_row(initial=True)
 
     def _build_output_group(self) -> None:
+        self.output_heading = ttk.Frame(self.main_content)
+        self.output_heading_label = ttk.Label(
+            self.output_heading, text="Output", style="SectionHeading.TLabel"
+        )
+        self.output_heading_label.pack(side="left")
+        self.grayscale_check = ttk.Checkbutton(
+            self.output_heading,
+            text="Convert to Grayscale",
+            variable=self.grayscale_var,
+            command=self._on_grayscale_changed,
+        )
+        self.grayscale_check.pack(side="left", padx=(14, 0))
         group = ttk.LabelFrame(
-            self.main_content, text="Output", style="Section.TLabelframe"
+            self.main_content,
+            labelwidget=self.output_heading,
+            style="Section.TLabelframe",
         )
         group.pack(fill="x", pady=5)
         group.columnconfigure(1, weight=1)
@@ -511,8 +579,33 @@ class ProsApp(tk.Tk):
         preview_scroll.pack(side="right", fill="y")
 
     def _build_progress_group(self) -> None:
+        self.progress_heading = ttk.Frame(self.main_content)
+        self.progress_heading_label = ttk.Label(
+            self.progress_heading, text="Progress", style="SectionHeading.TLabel"
+        )
+        self.progress_heading_label.pack(side="left")
+        self.readiness_frame = ttk.Frame(self.progress_heading)
+        self.readiness_frame.pack(side="left", padx=(8, 0))
+        self.readiness_canvas = tk.Canvas(
+            self.readiness_frame,
+            width=21,
+            height=21,
+            highlightthickness=0,
+            borderwidth=0,
+            background=self.cget("background"),
+        )
+        self.readiness_indicator = self.readiness_canvas.create_oval(
+            2, 2, 19, 19, fill="#e6395b", outline="#000000", width=2
+        )
+        self.readiness_canvas.pack(side="left")
+        self.readiness_label = ttk.Label(
+            self.readiness_frame, textvariable=self.readiness_text_var
+        )
+        self.readiness_label.pack(side="left", padx=(4, 0))
         group = ttk.LabelFrame(
-            self.main_content, text="Progress", style="Section.TLabelframe"
+            self.main_content,
+            labelwidget=self.progress_heading,
+            style="Section.TLabelframe",
         )
         group.pack(fill="both", expand=True, pady=5)
         group.columnconfigure(0, weight=1)
@@ -523,9 +616,18 @@ class ProsApp(tk.Tk):
         self.progress_bar = ttk.Progressbar(
             group, variable=self.progress_var, maximum=100, mode="determinate"
         )
-        self.progress_bar.grid(row=1, column=0, sticky="ew", pady=(4, 8))
+        self.progress_bar.grid(row=1, column=0, sticky="ew", pady=(4, 6))
 
-        ttk.Label(group, text="Status:").grid(row=2, column=0, sticky="w")
+        self.file_progress_label = ttk.Label(
+            group, textvariable=self.file_progress_text_var, style="Hint.TLabel"
+        )
+        self.file_progress_label.grid(row=2, column=0, sticky="w")
+        self.file_progress_bar = ttk.Progressbar(
+            group, variable=self.file_progress_var, maximum=100, mode="determinate"
+        )
+        self.file_progress_bar.grid(row=3, column=0, sticky="ew", pady=(3, 8))
+
+        ttk.Label(group, text="Status:").grid(row=4, column=0, sticky="w")
         self.status_area = tk.Text(
             group,
             height=4,
@@ -535,9 +637,9 @@ class ProsApp(tk.Tk):
             relief="solid",
             borderwidth=1,
         )
-        self.status_area.grid(row=3, column=0, sticky="ew", pady=(3, 7))
+        self.status_area.grid(row=5, column=0, sticky="ew", pady=(3, 7))
         ttk.Label(group, text="Errors:", style="Danger.TLabel").grid(
-            row=4, column=0, sticky="w"
+            row=6, column=0, sticky="w"
         )
         self.error_area = tk.Text(
             group,
@@ -549,12 +651,25 @@ class ProsApp(tk.Tk):
             relief="solid",
             borderwidth=1,
         )
-        self.error_area.grid(row=5, column=0, sticky="ew", pady=(3, 8))
+        self.error_area.grid(row=7, column=0, sticky="ew", pady=(3, 8))
 
         actions = ttk.Frame(group)
-        actions.grid(row=6, column=0, sticky="ew")
-        self.process_button = ttk.Button(
-            actions, text="Process", style="Primary.TButton", command=self._start_process
+        actions.grid(row=8, column=0, sticky="ew")
+        self.process_button = tk.Button(
+            actions,
+            text="Process",
+            command=self._start_process,
+            state="disabled",
+            background=PROCESS_DISABLED_BG,
+            foreground=PROCESS_DISABLED_FG,
+            disabledforeground=PROCESS_DISABLED_FG,
+            activebackground=PROCESS_ENABLED_BG,
+            activeforeground=PROCESS_ENABLED_FG,
+            font=("Segoe UI", 9, "bold"),
+            relief="raised",
+            borderwidth=1,
+            padx=12,
+            pady=3,
         )
         self.process_button.pack(side="left")
         self.cancel_button = ttk.Button(actions, text="Cancel", command=self._cancel_process)
@@ -584,6 +699,8 @@ class ProsApp(tk.Tk):
 
     def _on_canvas_configure(self, event: tk.Event[Any]) -> None:
         self.main_canvas.itemconfigure(self._canvas_window, width=event.width)
+        if hasattr(self, "tagline_label"):
+            self.tagline_label.configure(wraplength=max(320, event.width - 135))
 
     def _on_mouse_wheel(self, event: tk.Event[Any]) -> None:
         if self.winfo_containing(event.x_root, event.y_root) is not None:
@@ -602,23 +719,37 @@ class ProsApp(tk.Tk):
             except tk.TclError:
                 pass
 
+    def _set_process_enabled(self, enabled: bool) -> None:
+        """Set both the Process lock and an OS-theme-independent visual state."""
+
+        self.process_button.configure(
+            state="normal" if enabled else "disabled",
+            background=PROCESS_ENABLED_BG if enabled else PROCESS_DISABLED_BG,
+            foreground=PROCESS_ENABLED_FG if enabled else PROCESS_DISABLED_FG,
+            disabledforeground=PROCESS_DISABLED_FG,
+        )
+
     def _replace_text(self, widget: tk.Text, value: str) -> None:
         widget.configure(state="normal")
         widget.delete("1.0", "end")
         if value:
             widget.insert("1.0", value)
         widget.configure(state="disabled")
+        if widget is getattr(self, "status_area", None):
+            self._last_status_line = value.splitlines()[-1] if value else ""
 
     def _append_status(self, message: str) -> None:
-        safe = self._safe_message(message).strip()
-        if not safe:
-            return
-        self.status_area.configure(state="normal")
-        if self.status_area.index("end-1c") != "1.0":
-            self.status_area.insert("end", "\n")
-        self.status_area.insert("end", safe)
-        self.status_area.see("end")
-        self.status_area.configure(state="disabled")
+        for raw_line in str(message).splitlines() or (str(message),):
+            safe = self._friendly_message(raw_line).strip()
+            if not safe or safe == self._last_status_line:
+                continue
+            self.status_area.configure(state="normal")
+            if self.status_area.index("end-1c") != "1.0":
+                self.status_area.insert("end", "\n")
+            self.status_area.insert("end", safe)
+            self.status_area.see("end")
+            self.status_area.configure(state="disabled")
+            self._last_status_line = safe
 
     def _safe_message(self, message: object) -> str:
         text = str(message)
@@ -628,9 +759,80 @@ class ProsApp(tk.Tk):
             text = text.replace(secret, "••••")
         return text
 
+    def _friendly_message(self, message: object) -> str:
+        """Translate internal engine vocabulary into actionable user language."""
+
+        text = self._safe_message(message).strip()
+        if not text:
+            return ""
+        exact = {
+            "Validating inputs and output paths": "Checking input files, passwords, and the output folder.",
+            "Preflight completed": "All input and output checks passed.",
+            "Source integrity recorded": "The original files were checked and will remain unchanged.",
+            "Processing completed successfully": "Processing completed successfully.",
+            "Running authoritative preflight…": "Checking the complete job before processing…",
+            "Preflight passed. Processing started.": "All checks passed. Processing started.",
+            "Timeout cleanup is complete. No final output was retained.": NO_PROGRESS_CLEANUP_STATUS,
+        }
+        if text in exact:
+            return exact[text]
+        if "larger than 120 MB" in text:
+            return LARGE_FILE_STATUS
+        if text.startswith("Writing ") and "baseline" in text.casefold():
+            return "Preparing the PDF output."
+        if text.startswith("Staged ") and text.endswith(" for commit"):
+            filename = text.removeprefix("Staged ").removesuffix(" for commit")
+            return f"Finalizing {filename}."
+        if text.startswith("Verified "):
+            return f"Checked {text.removeprefix('Verified ')} and confirmed that it opens correctly."
+        if text.startswith("Added "):
+            return f"Added {text.removeprefix('Added ')} to the joined PDF."
+        if text.startswith("An output file already exists:"):
+            filename = text.split(":", 1)[1].strip().rstrip(".")
+            return f"A file named {filename} already exists in the output folder. Choose another name or folder."
+        if "password is missing or incorrect" in text.casefold():
+            filename = text.split(":", 1)[0] if ":" in text else "This PDF"
+            return f"{filename}: enter the password that currently opens this protected PDF."
+        if "valid pdf signature" in text.casefold():
+            return "This file does not appear to be a valid PDF. Choose another PDF file."
+        if "corrupt or uses an unsupported structure" in text.casefold():
+            return "This PDF is damaged or uses a feature that PROS cannot read. Try opening and resaving it in a PDF viewer."
+        if "file is unavailable" in text.casefold():
+            return "The selected PDF is no longer available. Restore it or add the file again."
+        if "selected output folder does not exist" in text.casefold():
+            return "The output folder no longer exists. Choose another folder."
+        if "selected output folder is not writable" in text.casefold():
+            return "PROS cannot save files in this output folder. Choose a folder where you have permission to save."
+        # Never expose Python exception class names as the main explanation.
+        text = re.sub(
+            r"^(?:[A-Za-z_][A-Za-z0-9_.]*(?:Error|Exception)):\s*",
+            "",
+            text,
+        )
+        return text
+
     def _set_runtime_error(self, message: str = "") -> None:
-        self._runtime_error = self._safe_message(message)
+        self._runtime_error = self._friendly_message(message)
         self._refresh_state()
+
+    def _mark_draft_edited(self) -> None:
+        """Leave the completed-result view only after a real user edit."""
+
+        if self._phase == "succeeded":
+            self._phase = "editing"
+            self.stage_var.set("Ready" if not any(row.inspection_pending for row in self._inputs) else "Checking files")
+            for row in self._inputs:
+                if row.info is not None and row.info.encrypted:
+                    row.info = PdfInfo(
+                        path=row.info.path,
+                        size_bytes=row.info.size_bytes,
+                        page_count=None,
+                        encrypted=True,
+                        password_valid=False,
+                        warnings=row.info.warnings,
+                        risks=row.info.risks,
+                    )
+            self._request_inspection()
 
     # ------------------------------------------------------------ input files
     def _mode(self) -> StructureMode:
@@ -661,6 +863,7 @@ class ProsApp(tk.Tk):
             selected = (one,) if one else ()
         if not selected:
             return
+        self._mark_draft_edited()
 
         existing = {_canonical_path(row.path) for row in self._inputs}
         accepted: list[Path] = []
@@ -704,6 +907,7 @@ class ProsApp(tk.Tk):
         index = self._selected_input_index()
         if index is None:
             return
+        self._mark_draft_edited()
         removed = self._inputs.pop(index)
         removed.password_override = ""
         self._selected_input_uid = None
@@ -724,6 +928,7 @@ class ProsApp(tk.Tk):
             parent=self,
         ):
             return
+        self._mark_draft_edited()
         self._clear_passwords()
         self._inputs.clear()
         self._selected_input_uid = None
@@ -744,6 +949,7 @@ class ProsApp(tk.Tk):
         target = index + delta
         if not 0 <= target < len(self._inputs):
             return
+        self._mark_draft_edited()
         row = self._inputs.pop(index)
         self._inputs.insert(target, row)
         self._refresh_auto_base()
@@ -760,14 +966,14 @@ class ProsApp(tk.Tk):
             if row.inspection_pending:
                 protection, pages, status = "Checking…", "—", "Inspecting…"
             elif info is None:
-                protection, pages, status = "Unknown", "—", "Waiting for preflight"
+                protection, pages, status = "Unknown", "—", "Waiting to be checked"
             else:
                 protection = (
                     "Protected" if info.encrypted is True else "Not protected" if info.encrypted is False else "Unknown"
                 )
                 pages = str(info.page_count) if info.page_count is not None else "—"
                 if info.error:
-                    status = self._safe_message(info.error)
+                    status = self._friendly_message(info.error)
                 elif info.encrypted and info.password_valid is not True:
                     status = "Password required or incorrect"
                 else:
@@ -829,17 +1035,20 @@ class ProsApp(tk.Tk):
             self._loading_password = False
 
     def _on_password_function_changed(self) -> None:
+        self._mark_draft_edited()
         self._runtime_error = ""
         self._request_inspection()
         self._refresh_output_preview()
         self._refresh_state()
 
     def _on_common_password_mode_changed(self) -> None:
+        self._mark_draft_edited()
         self._runtime_error = ""
         self._request_inspection()
         self._refresh_state()
 
     def _on_password_key(self, _event: tk.Event[Any] | None = None) -> None:
+        self._mark_draft_edited()
         self._runtime_error = ""
         self._request_inspection()
         self._refresh_state()
@@ -849,6 +1058,7 @@ class ProsApp(tk.Tk):
             return
         index = self._selected_input_index()
         if index is not None:
+            self._mark_draft_edited()
             self._inputs[index].password_override = self.per_file_password_var.get()
             self._runtime_error = ""
             self._request_inspection()
@@ -859,12 +1069,12 @@ class ProsApp(tk.Tk):
         self.common_password_entry.configure(show=show)
         self.per_file_password_entry.configure(show=show)
 
-    def _clear_passwords(self) -> None:
+    def _clear_passwords(self, *, invalidate_encrypted: bool = True) -> None:
         self.common_password_var.set("")
         self.per_file_password_var.set("")
         for row in self._inputs:
             row.password_override = ""
-            if row.info is not None and row.info.encrypted:
+            if invalidate_encrypted and row.info is not None and row.info.encrypted:
                 row.info = PdfInfo(
                     path=row.info.path,
                     size_bytes=row.info.size_bytes,
@@ -900,7 +1110,7 @@ class ProsApp(tk.Tk):
                 name=f"pros-preflight-{row.uid[:6]}",
             )
             thread.start()
-        self.stage_var.set("Preflight: inspecting selected PDFs" if self._inputs else "Ready")
+        self.stage_var.set("Checking selected PDF files" if self._inputs else "Ready")
         self._refresh_inputs()
         self._refresh_state()
 
@@ -911,7 +1121,11 @@ class ProsApp(tk.Tk):
             try:
                 info = inspect_pdf(path, password)
             except Exception as exc:  # noqa: BLE001 - thread boundary must stay alive
-                info = PdfInfo(path=path, error=f"Inspection failed ({type(exc).__name__}).")
+                del exc
+                info = PdfInfo(
+                    path=path,
+                    error="PROS could not check this PDF. Close any program that is using it and try again.",
+                )
             self._inspection_queue.put((generation, uid, info))
 
     def _drain_inspection_queue(self) -> None:
@@ -930,12 +1144,14 @@ class ProsApp(tk.Tk):
             row.inspection_pending = False
             changed = True
             if info.size_bytes > LARGE_FILE_NOTICE_BYTES:
-                self._append_status(
-                    f"{row.path.name} is larger than 120 MB and may take longer to process."
-                )
+                self._append_status(LARGE_FILE_STATUS)
         if changed:
-            if self._inputs and not any(row.inspection_pending for row in self._inputs):
-                self.stage_var.set("Preflight complete")
+            if (
+                self._inputs
+                and not any(row.inspection_pending for row in self._inputs)
+                and self._phase != "succeeded"
+            ):
+                self.stage_var.set("File checks complete")
             self._refresh_inputs(select_uid=self._selected_input_uid)
             self._refresh_ranges()
             self._refresh_output_preview()
@@ -943,6 +1159,7 @@ class ProsApp(tk.Tk):
 
     # ---------------------------------------------------------- mode and split
     def _on_mode_changed(self) -> None:
+        self._mark_draft_edited()
         self._runtime_error = ""
         if self._mode() is StructureMode.SPLIT and not self._split_rows:
             self._add_split_row(initial=True)
@@ -988,7 +1205,18 @@ class ProsApp(tk.Tk):
         label = ttk.Label(frame, text=f"Split point {index + 1}")
         label.grid(row=0, column=1, sticky="w", padx=(0, 8))
         variable = tk.StringVar(value="")
-        entry = ttk.Entry(frame, textvariable=variable, width=18)
+        # A classic Tk entry is intentional here: native ttk themes on Windows
+        # can ignore fieldbackground changes, which made invalid-value flashes
+        # invisible. This entry always renders the requested red/white sequence.
+        entry = tk.Entry(
+            frame,
+            textvariable=variable,
+            width=18,
+            background=SPLIT_NORMAL_BG,
+            disabledbackground="#f3f4f6",
+            relief="solid",
+            borderwidth=1,
+        )
         entry.grid(row=0, column=2, sticky="ew")
         row = _SplitRow(frame=frame, label=label, variable=variable, entry=entry)
         self._split_rows.append(row)
@@ -997,6 +1225,7 @@ class ProsApp(tk.Tk):
         entry.bind("<FocusOut>", lambda _event, i=index: self._commit_split_row(i))
         entry.bind("<Return>", lambda _event, i=index: self._commit_split_row(i))
         if not initial:
+            self._mark_draft_edited()
             self._select_split_row(index)
             entry.focus_set()
         self._reindex_split_rows()
@@ -1017,17 +1246,26 @@ class ProsApp(tk.Tk):
     def _remove_split_row(self) -> None:
         if not self._split_rows:
             return
+        self._mark_draft_edited()
         index = min(self._selected_split_index, len(self._split_rows) - 1)
         row = self._split_rows[index]
+        if row.clear_after:
+            try:
+                self.after_cancel(row.clear_after)
+            except tk.TclError:
+                pass
+            row.clear_after = None
+        if row.validate_after:
+            try:
+                self.after_cancel(row.validate_after)
+            except tk.TclError:
+                pass
+            row.validate_after = None
         if len(self._split_rows) == 1:
             row.variable.set("")
+            row.entry.configure(background=SPLIT_NORMAL_BG)
             row.entry.focus_set()
         else:
-            if row.clear_after:
-                try:
-                    self.after_cancel(row.clear_after)
-                except tk.TclError:
-                    pass
             row.frame.destroy()
             self._split_rows.pop(index)
             self._selected_split_index = max(0, index - 1)
@@ -1049,9 +1287,25 @@ class ProsApp(tk.Tk):
         self._select_split_row(min(self._selected_split_index, max(0, len(self._split_rows) - 1)))
 
     def _on_split_key(self, index: int) -> None:
+        self._mark_draft_edited()
         self._select_split_row(index)
         self._runtime_error = ""
-        self._split_rows[index].entry.configure(style="TEntry")
+        row = self._split_rows[index]
+        if row.validate_after:
+            try:
+                self.after_cancel(row.validate_after)
+            except tk.TclError:
+                pass
+            row.validate_after = None
+        if row.clear_after:
+            try:
+                self.after_cancel(row.clear_after)
+            except tk.TclError:
+                pass
+            row.clear_after = None
+        row.entry.configure(background=SPLIT_NORMAL_BG)
+        if row.variable.get().strip():
+            row.validate_after = self.after(1200, lambda i=index: self._debounced_split_validation(i))
         self._refresh_ranges()
         self._refresh_output_preview()
         self._refresh_state()
@@ -1084,14 +1338,34 @@ class ProsApp(tk.Tk):
             return None
         return self._inputs[0].info.page_count
 
-    def _commit_split_row(self, index: int) -> None:
+    def _debounced_split_validation(self, index: int) -> None:
         if not 0 <= index < len(self._split_rows):
             return
-        text = self._split_rows[index].variable.get().strip()
+        self._split_rows[index].validate_after = None
+        # The idle debounce itself is the requested 1–1.5 second pause. Once
+        # it expires, begin the visual rejection immediately if the value is
+        # invalid instead of adding a second delay.
+        self._commit_split_row(index, invalid_delay_ms=0)
+
+    def _commit_split_row(self, index: int, *, invalid_delay_ms: int = 1100) -> None:
+        if not 0 <= index < len(self._split_rows):
+            return
+        row = self._split_rows[index]
+        if row.validate_after:
+            try:
+                self.after_cancel(row.validate_after)
+            except tk.TclError:
+                pass
+            row.validate_after = None
+        text = row.variable.get().strip()
         if not text:
             return
         if not re.fullmatch(r"[1-9][0-9]*", text):
-            self._mark_split_invalid(index, f"Split point {index + 1} must be a positive whole number.")
+            self._mark_split_invalid(
+                index,
+                f"Split point {index + 1} must be a positive whole number.",
+                delay_ms=invalid_delay_ms,
+            )
             return
         value = int(text)
         page_count = self._split_page_count()
@@ -1103,21 +1377,34 @@ class ProsApp(tk.Tk):
             following = int(self._split_rows[index + 1].variable.get().strip())
         if previous is not None and value <= previous:
             reason = "duplicates the previous split point" if value == previous else "must be greater than the previous split point"
-            self._mark_split_invalid(index, f"Split point {index + 1} {reason}.")
+            self._mark_split_invalid(
+                index, f"Split point {index + 1} {reason}.", delay_ms=invalid_delay_ms
+            )
         elif following is not None and value >= following:
             reason = "duplicates the next split point" if value == following else "must be less than the next split point"
-            self._mark_split_invalid(index, f"Split point {index + 1} {reason}.")
+            self._mark_split_invalid(
+                index, f"Split point {index + 1} {reason}.", delay_ms=invalid_delay_ms
+            )
         elif page_count is not None and value >= page_count:
             self._mark_split_invalid(
                 index,
                 f"Split point {index + 1} must be less than the source page count ({page_count}).",
+                delay_ms=invalid_delay_ms,
             )
 
-    def _mark_split_invalid(self, index: int, message: str) -> None:
+    def _mark_split_invalid(self, index: int, message: str, *, delay_ms: int = 1100) -> None:
         if not 0 <= index < len(self._split_rows):
             return
         row = self._split_rows[index]
-        row.entry.configure(style="Invalid.TEntry")
+        if row.validate_after:
+            try:
+                self.after_cancel(row.validate_after)
+            except tk.TclError:
+                pass
+            row.validate_after = None
+        # Leave the value readable for a moment, then flash red/white twice so
+        # the user can see which field is being rejected before it is cleared.
+        row.entry.configure(background=SPLIT_NORMAL_BG)
         self._runtime_error = message
         self._refresh_state()
         if row.clear_after:
@@ -1126,33 +1413,60 @@ class ProsApp(tk.Tk):
             except tk.TclError:
                 pass
 
-        def clear_invalid() -> None:
+        def flash(step: int = 0) -> None:
             if not row.entry.winfo_exists():
                 return
+            colors = (
+                SPLIT_INVALID_BG,
+                SPLIT_NORMAL_BG,
+                SPLIT_INVALID_BG,
+                SPLIT_NORMAL_BG,
+            )
+            if step < len(colors):
+                row.entry.configure(background=colors[step])
+                row.clear_after = self.after(180, lambda: flash(step + 1))
+                return
             row.variable.set("")
-            row.entry.configure(style="TEntry")
+            row.entry.configure(background=SPLIT_NORMAL_BG)
             row.entry.focus_set()
             row.clear_after = None
             self._refresh_ranges()
             self._refresh_output_preview()
             self._refresh_state()
 
-        row.clear_after = self.after(750, clear_invalid)
+        row.clear_after = self.after(delay_ms, flash)
 
     def _refresh_ranges(self) -> None:
         self.range_list.delete(0, "end")
         if self._mode() is not StructureMode.SPLIT:
             return
         page_count = self._split_page_count()
-        points, errors = self._parsed_split_points()
         if page_count is None:
-            self.range_list.insert("end", "Ranges available after PDF/password preflight.")
+            self.range_list.insert("end", "Ranges will appear after the PDF and password checks.")
             return
+
+        # A newly added trailing field is intentionally blank.  Keep showing
+        # the ranges calculated from the completed points until the user types
+        # the next value; the blank still blocks Process through full validation.
+        completed: list[int] = []
+        malformed = False
+        for row in self._split_rows:
+            text = row.variable.get().strip()
+            if not text:
+                continue
+            if not re.fullmatch(r"[1-9][0-9]*", text):
+                malformed = True
+                break
+            completed.append(int(text))
+        if malformed or not completed:
+            self.range_list.insert("end", "Enter valid, increasing split points.")
+            return
+        errors = validate_split_points(page_count, completed)
         if errors:
             self.range_list.insert("end", "Enter valid, increasing split points.")
             return
         try:
-            ranges = calculate_split_ranges(page_count, points)
+            ranges = calculate_split_ranges(page_count, completed)
         except ValueError:
             self.range_list.insert("end", "Enter valid, increasing split points.")
             return
@@ -1177,6 +1491,7 @@ class ProsApp(tk.Tk):
         self._set_output_base(value)
 
     def _on_output_base_key(self, _event: tk.Event[Any] | None = None) -> None:
+        self._mark_draft_edited()
         if not self._setting_base:
             self._base_user_edited = bool(self.output_base_var.get().strip())
         self._runtime_error = ""
@@ -1206,6 +1521,7 @@ class ProsApp(tk.Tk):
         )
         if not selected:
             return
+        self._mark_draft_edited()
         path = Path(selected)
         self.output_folder_var.set(str(path.parent))
         stem = normalize_output_base(path.name)
@@ -1228,18 +1544,28 @@ class ProsApp(tk.Tk):
             return None
         points, _errors = self._parsed_split_points()
         job_id = self._active_job_id or "preview"
-        return JobRequest(
-            job_id=job_id,
-            remove_password=self.remove_password_var.get(),
-            compress_pdf=self.compress_var.get(),
-            structure_mode=self._mode(),
-            input_paths=[row.path for row in self._inputs],
-            passwords=[self._effective_password(row) for row in self._inputs],
-            split_points=points if self._mode() is StructureMode.SPLIT else [],
-            output_dir=Path(self.output_folder_var.get() or self.app_dir),
-            output_base=normalize_output_base(self.output_base_var.get()),
-            staging_dir=Path(tempfile.gettempdir()) / f"PROS-{job_id}",
-        )
+        return self._create_request(job_id=job_id, points=points)
+
+    def _create_request(self, *, job_id: str, points: Sequence[int]) -> JobRequest:
+        kwargs: dict[str, object] = {
+            "job_id": job_id,
+            "remove_password": self.remove_password_var.get(),
+            "compress_pdf": self.compress_var.get(),
+            "structure_mode": self._mode(),
+            "input_paths": [row.path for row in self._inputs],
+            "passwords": [self._effective_password(row) for row in self._inputs],
+            "split_points": points if self._mode() is StructureMode.SPLIT else [],
+            "output_dir": Path(self.output_folder_var.get() or self.app_dir),
+            "output_base": normalize_output_base(self.output_base_var.get()),
+            "staging_dir": Path(tempfile.gettempdir()) / f"PROS-{job_id}",
+        }
+        request_fields = getattr(JobRequest, "__dataclass_fields__", {})
+        if "compression_level" in request_fields:
+            # The second-revision UI exposes one compression profile only.
+            kwargs["compression_level"] = CompressionLevel.ULTRA
+        if "convert_to_grayscale" in request_fields:
+            kwargs["convert_to_grayscale"] = bool(self.grayscale_var.get())
+        return JobRequest(**kwargs)  # type: ignore[arg-type]
 
     def _refresh_output_preview(self) -> None:
         self.output_preview.delete(0, "end")
@@ -1261,6 +1587,7 @@ class ProsApp(tk.Tk):
         if not (
             self.remove_password_var.get()
             or self.compress_var.get()
+            or self.grayscale_var.get()
             or mode is not StructureMode.NEITHER
         ):
             errors.append("Select at least one PDF-processing function.")
@@ -1273,15 +1600,17 @@ class ProsApp(tk.Tk):
             if count != 1:
                 errors.append("Split requires exactly one input PDF.")
         elif count != 1:
-            errors.append("Password removal or compression without Join or Split requires one input PDF.")
+            errors.append(
+                "Password removal, compression, or grayscale conversion without Join or Split requires one input PDF."
+            )
 
         for row in self._inputs:
             if row.inspection_pending:
-                errors.append(f"{row.path.name}: preflight is still in progress.")
+                errors.append(f"{row.path.name}: PROS is still checking this file.")
                 continue
             info = row.info
             if info is None:
-                errors.append(f"{row.path.name}: preflight has not completed.")
+                errors.append(f"{row.path.name}: this file has not been checked yet.")
                 continue
             if info.error:
                 errors.append(f"{row.path.name}: {self._safe_message(info.error)}")
@@ -1320,13 +1649,15 @@ class ProsApp(tk.Tk):
                     errors.append(f"An output file already exists: {path.name}.")
         else:
             errors.append("An output base name is required.")
-        return list(dict.fromkeys(self._safe_message(item) for item in errors if item))
+        return list(dict.fromkeys(self._friendly_message(item) for item in errors if item))
 
     def _refresh_state(self) -> None:
         active = self._phase in {"preflighting", "processing", "cancelling"}
+        completed = self._phase == "succeeded"
+        idle_for_job = self._phase in {"editing", "failed"}
         mode = self._mode()
-        errors = [] if active else self._blocking_errors()
-        shown_errors = ([self._runtime_error] if self._runtime_error else []) + errors
+        errors = [] if active or completed else self._blocking_errors()
+        shown_errors = [] if completed else ([self._runtime_error] if self._runtime_error else []) + errors
         self._replace_text(self.error_area, "\n".join(dict.fromkeys(shown_errors)))
 
         for widget in (
@@ -1340,6 +1671,7 @@ class ProsApp(tk.Tk):
             self.clear_list_button,
             self.save_as_button,
             self.output_base_entry,
+            self.grayscale_check,
         ):
             self._set_widget_enabled(widget, not active)
 
@@ -1387,8 +1719,22 @@ class ProsApp(tk.Tk):
             not active and mode is StructureMode.SPLIT and bool(self._split_rows),
         )
 
-        self._set_widget_enabled(self.process_button, not active and not errors)
-        self._set_widget_enabled(self.cancel_button, self._phase in {"preflighting", "processing"})
+        positively_valid = idle_for_job and not errors
+        self._set_process_enabled(positively_valid)
+        self._set_widget_enabled(
+            self.cancel_button, self._phase in {"preflighting", "processing"}
+        )
+        indicator_color = "#22a447" if positively_valid else "#e6395b"
+        self.readiness_canvas.itemconfigure(self.readiness_indicator, fill=indicator_color)
+        if positively_valid:
+            readiness_text = "Ready to process"
+        elif completed:
+            readiness_text = "Completed"
+        elif active:
+            readiness_text = "Working"
+        else:
+            readiness_text = "Not ready"
+        self.readiness_text_var.set(readiness_text)
         self._set_widget_enabled(
             self.open_completed_button,
             not active and len(self._last_outputs) == 1 and self._last_outputs[0].is_file(),
@@ -1399,6 +1745,19 @@ class ProsApp(tk.Tk):
         )
 
     def _on_draft_changed(self) -> None:
+        self._mark_draft_edited()
+        self._runtime_error = ""
+        self._refresh_output_preview()
+        self._refresh_state()
+
+    def _on_compression_changed(self) -> None:
+        self._mark_draft_edited()
+        self._runtime_error = ""
+        self._refresh_output_preview()
+        self._refresh_state()
+
+    def _on_grayscale_changed(self) -> None:
+        self._mark_draft_edited()
         self._runtime_error = ""
         self._refresh_output_preview()
         self._refresh_state()
@@ -1409,21 +1768,14 @@ class ProsApp(tk.Tk):
         if point_errors and self._mode() is StructureMode.SPLIT:
             raise ValueError(point_errors[0])
         job_id = uuid.uuid4().hex
-        request = JobRequest(
-            job_id=job_id,
-            remove_password=self.remove_password_var.get(),
-            compress_pdf=self.compress_var.get(),
-            structure_mode=self._mode(),
-            input_paths=[row.path for row in self._inputs],
-            passwords=[self._effective_password(row) for row in self._inputs],
-            split_points=points if self._mode() is StructureMode.SPLIT else [],
-            output_dir=Path(self.output_folder_var.get()),
-            output_base=normalize_output_base(self.output_base_var.get()),
-            staging_dir=Path(tempfile.gettempdir()) / f"PROS-{job_id}",
-        )
-        return request
+        return self._create_request(job_id=job_id, points=points)
 
     def _start_process(self) -> None:
+        # Lock immediately, before any validation or request construction, to
+        # make a rapid double-click harmless.
+        self._set_process_enabled(False)
+        self.readiness_canvas.itemconfigure(self.readiness_indicator, fill="#e6395b")
+        self.readiness_text_var.set("Working")
         if self._blocking_errors():
             self._refresh_state()
             return
@@ -1440,12 +1792,17 @@ class ProsApp(tk.Tk):
         self._last_outputs = ()
         self._last_destination = None
         self.progress_var.set(0)
+        self.file_progress_var.set(0)
+        self.file_progress_text_var.set("Checking the complete job…")
+        self._last_progress_signature = None
+        self._last_progress_log_key = None
+        self._reset_synthetic_progress()
         now = time.monotonic()
         self._job_started_at = now
         self._last_progress_at = now
         self._job_started_wall = time.time()
-        self.stage_var.set("Preflight")
-        self._replace_text(self.status_area, "Running authoritative preflight…")
+        self.stage_var.set("Checking the complete job")
+        self._replace_text(self.status_area, "Checking the complete job before processing…")
         self._refresh_state()
 
         thread = threading.Thread(
@@ -1460,9 +1817,14 @@ class ProsApp(tk.Tk):
         try:
             report = preflight(request)
             self._authoritative_queue.put((request.job_id, report))
-        except Exception as exc:  # noqa: BLE001 - background boundary reports safe error
+        except Exception:  # noqa: BLE001 - background boundary reports safe error
             self._authoritative_queue.put(
-                (request.job_id, RuntimeError(f"Preflight failed ({type(exc).__name__})."))
+                (
+                    request.job_id,
+                    RuntimeError(
+                        "PROS could not finish checking this job. Confirm that the input files and output folder are still available, then try again."
+                    ),
+                )
             )
 
     def _drain_authoritative_queue(self) -> None:
@@ -1478,7 +1840,10 @@ class ProsApp(tk.Tk):
                 continue
             report = payload
             if not getattr(report, "valid", False):
-                self._finish_failed("\n".join(getattr(report, "errors", ())) or "Preflight failed.")
+                self._finish_failed(
+                    "\n".join(getattr(report, "errors", ()))
+                    or "The final job checks did not pass. Review the errors and try again."
+                )
                 continue
             warnings = tuple(getattr(report, "warnings", ()))
             for warning in warnings:
@@ -1516,20 +1881,26 @@ class ProsApp(tk.Tk):
                 target=worker_entry,
                 args=(request, self._worker_queue, self._cancel_event),
                 name=f"PROS-{request.job_id[:8]}",
-                daemon=True,
+                # Core compression may use a short-lived child process to keep
+                # native qpdf calls observable; daemonic processes cannot do so.
+                daemon=False,
             )
             self._worker_process.start()
-        except (OSError, RuntimeError, TypeError, ValueError) as exc:
-            self._finish_failed(f"The processing worker could not start ({type(exc).__name__}).")
+        except (OSError, RuntimeError, TypeError, ValueError):
+            self._finish_failed(
+                "PROS could not start processing. Close other PROS windows and try again."
+            )
             return
         now = time.monotonic()
         self._last_progress_at = now
         self._cancel_requested_at = None
         self._timeout_reason = None
+        self._last_progress_signature = None
+        self._last_progress_log_key = None
         self._dead_process_polls = 0
         self._phase = "processing"
         self.stage_var.set("Processing")
-        self._append_status("Preflight passed. Processing started.")
+        self._append_status("All checks passed. Processing started.")
         self._refresh_state()
 
     def _cancel_process(self) -> None:
@@ -1540,7 +1911,7 @@ class ProsApp(tk.Tk):
             self._active_job_id = None
             self._phase = "failed"
             self.stage_var.set("Cancelled")
-            self._append_status("Preflight cancelled; no output was created.")
+            self._append_status("Job checks were cancelled. No output file was created.")
             if request:
                 self._cleanup_staging(request)
             self._clear_passwords()
@@ -1554,12 +1925,158 @@ class ProsApp(tk.Tk):
         self._phase = "cancelling"
         self._cancel_requested_at = time.monotonic()
         self.stage_var.set("Cancelling")
-        self._append_status("Cancellation requested. Waiting for safe cleanup…")
+        self._append_status("Cancellation requested. PROS is safely cleaning up temporary files…")
         try:
             self._cancel_event.set()
         except (BrokenPipeError, EOFError, OSError, ValueError):
             pass
         self._refresh_state()
+
+    @staticmethod
+    def _compression_meter(percent: float) -> str:
+        bounded = max(0, min(100, int(percent)))
+        marks = "-" * (bounded // 2)
+        return f"[{marks}] {bounded}%"
+
+    def _reset_synthetic_progress(self) -> None:
+        self._progress_stage = ""
+        self._progress_file_index = 0
+        self._progress_file_count = 0
+        self._progress_target = "current PDF"
+        self._display_phase_percent = 0.0
+        self._synthetic_progress_interval = 1.0
+        self._next_synthetic_progress_at = 0.0
+
+    def _synthetic_interval_for_active_job(self, file_count: int) -> float:
+        """Return a conservative size-aware cadence for display-only progress."""
+
+        total_bytes = 0
+        for row in self._inputs:
+            if row.info is not None and row.info.size_bytes:
+                total_bytes += row.info.size_bytes
+                continue
+            try:
+                total_bytes += row.path.stat().st_size
+            except OSError:
+                pass
+        bytes_per_output = total_bytes / max(1, file_count)
+        size_mb = bytes_per_output / (1024 * 1024)
+        # Calibrated against a 136.1 MiB / roughly 290-second real workload:
+        # 2% every ~5.7 seconds reaches the 98% display cap near completion.
+        return max(0.5, min(10.0, size_mb / 24.0))
+
+    def _render_compression_progress(self) -> None:
+        percent = self._display_phase_percent
+        prefix = (
+            f"File {self._progress_file_index} of {self._progress_file_count}: "
+            if self._progress_file_index and self._progress_file_count
+            else ""
+        )
+        detail = f"Compressing {self._progress_target} {self._compression_meter(percent)}"
+        self.file_progress_var.set(percent)
+        self.file_progress_text_var.set(prefix + detail)
+
+        milestone = int(percent // 10 * 10)
+        log_key = ("compress", milestone, self._progress_target)
+        if milestone > 0 and log_key != self._last_progress_log_key:
+            self._append_status(prefix + detail)
+            self._last_progress_log_key = log_key
+
+    def _advance_synthetic_progress(self, now: float | None = None) -> None:
+        """Advance the compression display without claiming worker liveness."""
+
+        current = time.monotonic() if now is None else now
+        if (
+            self._phase != "processing"
+            or self._progress_stage != "compress"
+            or self._next_synthetic_progress_at <= 0
+            or current < self._next_synthetic_progress_at
+            or self._display_phase_percent >= 98
+        ):
+            return
+        elapsed = current - self._next_synthetic_progress_at
+        steps = 1 + int(elapsed // self._synthetic_progress_interval)
+        self._display_phase_percent = min(
+            98.0, self._display_phase_percent + 2.0 * steps
+        )
+        self._next_synthetic_progress_at += steps * self._synthetic_progress_interval
+        self._render_compression_progress()
+
+    def _show_progress_event(self, event: dict[str, object]) -> None:
+        # Any event reaching this method came from the worker and therefore is
+        # genuine liveness. Display-only ticks use _advance_synthetic_progress
+        # and deliberately never update this safety timestamp.
+        received_at = time.monotonic()
+        self._last_progress_at = received_at
+        stage = str(event.get("stage") or "process").casefold()
+        overall = event.get("percent")
+        phase_value = event.get("phase_percent", overall)
+        phase_percent = (
+            max(0.0, min(100.0, float(phase_value)))
+            if isinstance(phase_value, (int, float))
+            else 0.0
+        )
+        if isinstance(overall, (int, float)):
+            self.progress_var.set(max(0, min(100, float(overall))))
+
+        file_index = int(event.get("file_index") or 0)
+        file_count = int(event.get("file_count") or 0)
+        signature = (stage, file_index, phase_percent)
+        self._last_progress_signature = signature
+
+        stage_labels = {
+            "preflight": "Checking files and output location",
+            "join": "Joining PDFs",
+            "split": "Creating split PDF files",
+            "compress": "Compressing PDF",
+            "write": "Preparing PDF output",
+            "verify": "Checking completed PDF",
+            "commit": "Saving completed output",
+            "complete": "Completed",
+        }
+        self.stage_var.set(stage_labels.get(stage, stage.replace("_", " ").title()))
+
+        raw_message = self._safe_message(event.get("message") or "")
+        path_value = event.get("path")
+        filename = Path(str(path_value)).name if path_value else ""
+        prefix = f"File {file_index} of {file_count}: " if file_index and file_count else ""
+        if stage == "compress":
+            target = filename or raw_message.removeprefix("Compressing ") or "current PDF"
+            same_file = (
+                self._progress_stage == "compress"
+                and self._progress_file_index == file_index
+                and self._progress_target == target
+            )
+            if not same_file:
+                self._last_progress_log_key = None
+                self._display_phase_percent = phase_percent
+            else:
+                # A delayed real event must never move the visible meter back.
+                self._display_phase_percent = max(
+                    self._display_phase_percent, phase_percent
+                )
+            self._progress_stage = "compress"
+            self._progress_file_index = file_index
+            self._progress_file_count = file_count
+            self._progress_target = target
+            self._synthetic_progress_interval = self._synthetic_interval_for_active_job(
+                file_count
+            )
+            self._next_synthetic_progress_at = (
+                received_at + self._synthetic_progress_interval
+            )
+            self._render_compression_progress()
+            return
+        else:
+            self._progress_stage = stage
+            self._next_synthetic_progress_at = 0.0
+            self._display_phase_percent = phase_percent
+            self.file_progress_var.set(phase_percent)
+            detail = self._friendly_message(raw_message) or stage_labels.get(stage, "Working")
+        self.file_progress_text_var.set(prefix + detail)
+
+        if raw_message:
+            self._append_status(raw_message)
 
     def _drain_worker_queue(self) -> None:
         if self._worker_queue is None:
@@ -1584,27 +2101,19 @@ class ProsApp(tk.Tk):
                 else:
                     self._finish_failed(self._safe_message(event.get("message", "Processing failed.")))
                 return
-            percent = event.get("percent")
-            if isinstance(percent, (int, float)):
-                self.progress_var.set(max(0, min(100, float(percent))))
-                self._last_progress_at = time.monotonic()
-            stage = str(event.get("stage") or "Processing")
-            self.stage_var.set(stage.replace("_", " ").title())
-            message = event.get("message")
-            if message:
-                self._append_status(self._safe_message(message))
+            self._show_progress_event(event)
 
     def _check_worker(self) -> None:
         now = time.monotonic()
         if self._phase == "preflighting":
             if now - self._job_started_at > TOTAL_JOB_TIMEOUT_SECONDS:
                 self._finish_failed(
-                    "The 30-minute total job timeout was reached during preflight. No output was created.",
+                    "The 30-minute job limit was reached while PROS was checking the files and output folder. No output file was created.",
                     timed_out=True,
                 )
             elif now - self._last_progress_at > NO_PROGRESS_TIMEOUT_SECONDS:
                 self._finish_failed(
-                    "Preflight reported no measurable progress for five minutes. No output was created.",
+                    "No progress was detected for five minutes while PROS was checking the job. No output file was created.",
                     timed_out=True,
                 )
             return
@@ -1613,9 +2122,9 @@ class ProsApp(tk.Tk):
             return
         if self._phase == "processing" and self._timeout_reason is None:
             if now - self._job_started_at > TOTAL_JOB_TIMEOUT_SECONDS:
-                self._begin_timeout("The 30-minute total job timeout was reached.")
+                self._begin_timeout("total")
             elif now - self._last_progress_at > NO_PROGRESS_TIMEOUT_SECONDS:
-                self._begin_timeout("No measurable progress was reported for five minutes.")
+                self._begin_timeout("no_progress")
 
         if (
             self._phase == "cancelling"
@@ -1628,12 +2137,16 @@ class ProsApp(tk.Tk):
                 process.join(timeout=2)
             except (OSError, ValueError):
                 pass
-            reason = self._timeout_reason or "The worker did not stop within the cancellation grace period."
-            self._finish_failed(
-                f"{reason} The worker was forced to stop; staging, identifiable partial files, and this job's newly created outputs were removed.",
-                timed_out=bool(self._timeout_reason),
-                forced=True,
-            )
+            if self._timeout_reason == "no_progress":
+                self._finish_failed(NO_PROGRESS_FORCED_ERROR, timed_out=True, forced=True)
+            elif self._timeout_reason == "total":
+                self._finish_failed(
+                    "Processing reached the 30-minute limit and did not stop in time, so it was forcibly ended. Any temporary, partial, or newly created output files from this task were removed.",
+                    timed_out=True,
+                    forced=True,
+                )
+            else:
+                self._finish_failed(FORCED_CANCELLATION_ERROR, forced=True)
             return
 
         if not process.is_alive() and not self._terminal_received:
@@ -1642,14 +2155,21 @@ class ProsApp(tk.Tk):
                 self._drain_worker_queue()
                 if not self._terminal_received and self._worker_process is not None:
                     code = self._worker_process.exitcode
-                    self._finish_failed(f"The processing worker stopped unexpectedly (exit code {code}).")
+                    self._finish_failed(
+                        f"Processing stopped unexpectedly (code {code}). No completed output file was created."
+                    )
 
     def _begin_timeout(self, reason: str) -> None:
         self._timeout_reason = reason
         self._phase = "cancelling"
         self._cancel_requested_at = time.monotonic()
-        self.stage_var.set("Timed out — cleaning up")
-        self._append_status(f"{reason} Safe cancellation and cleanup were requested.")
+        self.stage_var.set("Stopping safely and cleaning up")
+        if reason == "no_progress":
+            self._append_status(NO_PROGRESS_CANCELLING_STATUS)
+        else:
+            self._append_status(
+                "Processing reached the 30-minute limit. We have requested safe cancellation and are cleaning up temporary files."
+            )
         try:
             if self._cancel_event is not None:
                 self._cancel_event.set()
@@ -1660,11 +2180,14 @@ class ProsApp(tk.Tk):
     def _handle_job_result(self, result: JobResult) -> None:
         if result.job_id != self._active_job_id:
             return
+        timeout_reason = self._timeout_reason
         for warning in result.warnings:
             self._append_status(f"Warning: {warning}")
         if result.success:
             self._phase = "succeeded"
             self.progress_var.set(100)
+            self.file_progress_var.set(100)
+            self.file_progress_text_var.set("All output files were created and checked successfully.")
             self.stage_var.set("Completed")
             self._last_outputs = tuple(Path(path) for path in result.output_paths)
             self._last_destination = self._last_outputs[0].parent if self._last_outputs else None
@@ -1681,20 +2204,30 @@ class ProsApp(tk.Tk):
         elif result.cancelled:
             self._phase = "failed"
             self.progress_var.set(0)
+            self.file_progress_var.set(0)
             self.stage_var.set("Cancelled")
-            self._append_status("Cancellation and cleanup are complete. No final output was created.")
-            self._runtime_error = self._safe_message(result.error or "The job was cancelled.")
+            if timeout_reason == "no_progress":
+                self._append_status(NO_PROGRESS_CLEANUP_STATUS)
+                self._runtime_error = (
+                    "No progress was detected for five minutes. Processing was cancelled safely, "
+                    "temporary files were removed, and no completed output file was created."
+                )
+            else:
+                self._append_status("Cancellation and cleanup are complete. No completed output file was created.")
+                self._runtime_error = self._friendly_message(result.error or "The job was cancelled.")
         else:
             self._phase = "failed"
             self.progress_var.set(0)
+            self.file_progress_var.set(0)
             self.stage_var.set("Failed")
-            self._runtime_error = self._safe_message(result.error or "Processing failed.")
+            self._runtime_error = self._friendly_message(result.error or "Processing failed.")
         request = self._active_request
-        self._clear_passwords()
+        self._clear_passwords(invalidate_encrypted=not result.success)
         if request:
             self._cleanup_staging(request)
         self._finish_worker_handles()
-        self._request_inspection()
+        if not result.success:
+            self._request_inspection()
         self._refresh_inputs()
         self._refresh_state()
 
@@ -1704,10 +2237,15 @@ class ProsApp(tk.Tk):
         request = self._active_request
         self._phase = "failed"
         self.progress_var.set(0)
+        self.file_progress_var.set(0)
+        self.file_progress_text_var.set("No file is being processed.")
         self.stage_var.set("Timed out" if timed_out else "Failed")
-        self._runtime_error = self._safe_message(message)
+        self._runtime_error = self._friendly_message(message)
         if timed_out:
-            self._append_status("Timeout cleanup is complete. No final output was retained.")
+            if self._timeout_reason == "no_progress":
+                self._append_status(NO_PROGRESS_CLEANUP_STATUS)
+            else:
+                self._append_status("Cleanup is complete. No completed output file was created.")
         self._clear_passwords()
         if request:
             self._cleanup_staging(request, remove_possible_outputs=forced)
@@ -1781,6 +2319,7 @@ class ProsApp(tk.Tk):
             self._drain_inspection_queue()
             self._drain_authoritative_queue()
             self._drain_worker_queue()
+            self._advance_synthetic_progress()
             self._check_worker()
         finally:
             if self.winfo_exists():
