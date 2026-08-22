@@ -48,6 +48,8 @@ class JobRequest:
 
     ``output_base`` is the raw user/ranked stem. It excludes ``.pdf`` and the
     automatic ``Join``, ``Pwd_Rmv``, ``Cprs``, ``Grey`` and ``Part N`` suffixes.
+    It is intentionally ignored for final naming when Keep separate has more
+    than one input; those outputs use their corresponding input stems.
     Passwords are aligned by index with ``input_paths`` and deliberately hidden
     from ``repr`` so normal diagnostics cannot expose them.
     """

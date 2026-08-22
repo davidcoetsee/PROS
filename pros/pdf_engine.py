@@ -1009,28 +1009,53 @@ def _write_single_baseline(
     progress: ProgressCallback | None,
     cancel_event: object | None,
     final_path: Path,
+    *,
+    input_index: int = 0,
+    file_count: int = 1,
 ) -> None:
+    input_path = request.input_paths[input_index]
+    file_index = input_index + 1
+    start_percent = 15 + (35 * input_index / file_count)
+    end_percent = 15 + (35 * file_index / file_count)
+    _emit(
+        request,
+        progress,
+        cancel_event,
+        stage="process",
+        percent=start_percent,
+        message=f"Processing {input_path.name}",
+        path=input_path,
+        file_index=file_index,
+        file_count=file_count,
+        phase_percent=0,
+    )
     if (
         request.convert_to_grayscale
         and not request.compress_pdf
         and not request.remove_password
     ):
-        _copy_exclusive(request.input_paths[0], output_path, cancel_event)
+        _copy_exclusive(input_path, output_path, cancel_event)
         _emit(
             request,
             progress,
             cancel_event,
             stage="process",
-            percent=50,
+            percent=end_percent,
             message=f"Prepared {final_path.name} for grayscale conversion",
             path=final_path,
-            file_index=1,
-            file_count=1,
+            file_index=file_index,
+            file_count=file_count,
             phase_percent=100,
         )
         return
-    password = request.passwords[0] if request.passwords else None
-    builder = pikepdf.JobBuilder().input(request.input_paths[0], password=password).output(output_path)
+    password = (
+        request.passwords[input_index]
+        if input_index < len(request.passwords)
+        else None
+    )
+    builder = (
+        pikepdf.JobBuilder().input(input_path, password=password).output(output_path)
+    )
     if request.remove_password:
         builder.decrypt()
     _run_qpdf_job(builder, warnings, cancel_event=cancel_event)
@@ -1039,7 +1064,7 @@ def _write_single_baseline(
         progress,
         cancel_event,
         stage="process",
-        percent=50,
+        percent=end_percent,
         message=(
             f"Prepared {final_path.name} for compression"
             if request.compress_pdf
@@ -1048,8 +1073,8 @@ def _write_single_baseline(
             else f"Prepared {final_path.name}"
         ),
         path=final_path,
-        file_index=1,
-        file_count=1,
+        file_index=file_index,
+        file_count=file_count,
         phase_percent=100,
     )
 
@@ -1608,9 +1633,9 @@ def _prepare_ready_outputs(
                 request.structure_mode is StructureMode.NEITHER
                 and not request.remove_password
                 and not request.convert_to_grayscale
-                and request.input_paths[0].stat().st_size < candidate.stat().st_size
+                and request.input_paths[index].stat().st_size < candidate.stat().st_size
             ):
-                candidate = request.input_paths[0]
+                candidate = request.input_paths[index]
         elif request.convert_to_grayscale:
             candidate = _grayscale_one(
                 request,
@@ -1651,12 +1676,14 @@ def _prepare_ready_outputs(
 def _verify_outputs(
     request: JobRequest,
     paths: Sequence[Path],
+    final_paths: Sequence[Path],
     expected_page_counts: Sequence[int],
     progress: ProgressCallback | None,
     cancel_event: object | None,
 ) -> list[str]:
     warnings: list[str] = []
-    for index, (path, expected_pages) in enumerate(zip(paths, expected_page_counts, strict=True)):
+    items = zip(paths, final_paths, expected_page_counts, strict=True)
+    for index, (path, final_path, expected_pages) in enumerate(items):
         _check_cancel(cancel_event)
         if not path.is_file() or path.stat().st_size == 0:
             raise RuntimeError(f"The staged output was not created: {path.name}")
@@ -1681,8 +1708,11 @@ def _verify_outputs(
             cancel_event,
             stage="verify",
             percent=80 + (10 * (index + 1) / len(paths)),
-            message=f"Verified {path.name}",
-            path=path,
+            message=f"Verified {final_path.name}",
+            path=final_path,
+            file_index=index + 1,
+            file_count=len(paths),
+            phase_percent=100,
         )
     return warnings
 
@@ -1734,6 +1764,9 @@ def _commit_outputs(
                 percent=90 + (5 * (index + 1) / len(ready_paths)),
                 message=f"Finalizing {final.name}",
                 path=final,
+                file_index=index + 1,
+                file_count=len(ready_paths),
+                phase_percent=100,
             )
 
         for partial, final in zip(partials, final_paths, strict=True):
@@ -1817,24 +1850,22 @@ def process_job(
         )
         mode = StructureMode(request.structure_mode)
         if mode is StructureMode.NEITHER:
-            _emit(
-                request,
-                progress,
-                cancel_event,
-                stage="process",
-                percent=15,
-                message=f"Processing {request.input_paths[0].name}",
-                path=request.input_paths[0],
+            for input_index, (baseline_path, final_path) in enumerate(
+                zip(baseline_paths, report.output_paths, strict=True)
+            ):
+                _write_single_baseline(
+                    request,
+                    baseline_path,
+                    runtime_warnings,
+                    progress,
+                    cancel_event,
+                    final_path,
+                    input_index=input_index,
+                    file_count=len(baseline_paths),
+                )
+            expected_page_counts = tuple(
+                info.page_count or 0 for info in report.input_info
             )
-            _write_single_baseline(
-                request,
-                baseline_paths[0],
-                runtime_warnings,
-                progress,
-                cancel_event,
-                report.output_paths[0],
-            )
-            expected_page_counts = (report.input_info[0].page_count or 0,)
         elif mode is StructureMode.JOIN:
             runtime_warnings.extend(
                 _build_join_baseline(
@@ -1872,6 +1903,7 @@ def process_job(
             _verify_outputs(
                 request,
                 ready_paths,
+                report.output_paths,
                 expected_page_counts,
                 progress,
                 cancel_event,

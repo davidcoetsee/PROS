@@ -8,6 +8,14 @@ ENTRY_POINT = PROJECT_ROOT / "main.py"
 NOTICES = PROJECT_ROOT / "THIRD_PARTY_NOTICES.txt"
 ICON = PROJECT_ROOT / "assets" / "PROS.ico"
 VERSION_INFO = PROJECT_ROOT / "packaging" / "version_info.txt"
+BRAND_ASSET_NAMES = (
+    "PROS.ico",
+    "PROS-Logo.png",
+    "PROS-App-Icon.png",
+    "PROS-Logo.svg",
+    "PROS-App-Icon.svg",
+)
+BRAND_ASSETS = tuple(PROJECT_ROOT / "assets" / name for name in BRAND_ASSET_NAMES)
 
 if not ENTRY_POINT.is_file():
     raise FileNotFoundError(f"Application entry point not found: {ENTRY_POINT}")
@@ -15,12 +23,15 @@ if not NOTICES.is_file():
     raise FileNotFoundError(f"Third-party notices not found: {NOTICES}")
 if not VERSION_INFO.is_file():
     raise FileNotFoundError(f"Windows version resource not found: {VERSION_INFO}")
+for brand_asset in BRAND_ASSETS:
+    if not brand_asset.is_file():
+        raise FileNotFoundError(f"Brand asset not found: {brand_asset}")
 
 BUNDLE_DATA = [(str(NOTICES), ".")]
-if ICON.is_file():
-    # The PE resource supplies Explorer's icon; Tk also needs a real file at
-    # runtime for the window icon.
-    BUNDLE_DATA.append((str(ICON), "assets"))
+# The ICO supplies the PE/Explorer icon and is also bundled for Tk at runtime.
+# The PNG display assets and SVG masters remain available to the header, About
+# dialog, documentation, and packaged self-test.
+BUNDLE_DATA.extend((str(asset), "assets") for asset in BRAND_ASSETS)
 
 
 a = Analysis(
@@ -63,6 +74,6 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=str(ICON) if ICON.is_file() else None,
+    icon=str(ICON),
     version=str(VERSION_INFO),
 )

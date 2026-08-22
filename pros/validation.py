@@ -16,9 +16,14 @@ from .models import (
     PreflightReport,
     StructureMode,
 )
-from .naming import build_output_paths, normalize_output_base, suggest_output_base
+from .naming import (
+    build_output_paths,
+    normalize_output_base,
+    suggest_output_bases,
+)
 
 MAX_JOIN_INPUTS = 12
+MAX_SEPARATE_INPUTS = MAX_JOIN_INPUTS
 MAX_SPLIT_OUTPUTS = 12
 LARGE_FILE_NOTICE_BYTES = 120 * 1024 * 1024
 LARGE_FILE_ACCEPTANCE_BYTES = 180 * 1024 * 1024
@@ -189,9 +194,9 @@ def preflight(request: JobRequest, *, for_estimate: bool = False) -> PreflightRe
         if input_count != 1:
             errors.append("Split requires exactly one input PDF.")
     else:
-        if input_count != 1:
+        if not 1 <= input_count <= MAX_SEPARATE_INPUTS:
             errors.append(
-                "Password removal, compression, or grayscale conversion without Join or Split requires one input PDF."
+                f"Keep separate requires between 1 and {MAX_SEPARATE_INPUTS} input PDFs."
             )
         if request.split_points:
             errors.append("Split points are permitted only when Split is selected.")
@@ -242,15 +247,37 @@ def preflight(request: JobRequest, *, for_estimate: bool = False) -> PreflightRe
             if not split_errors:
                 split_ranges = calculate_split_ranges(page_count, request.split_points)
 
-    ranked_raw_base = normalize_output_base(request.output_base)
-    if not ranked_raw_base and request.input_paths:
-        ranked_raw_base = normalize_output_base(Path(request.input_paths[0]).stem)
-    errors.extend(validate_output_base(ranked_raw_base))
+    multi_file_separate = mode is StructureMode.NEITHER and input_count > 1
+    if multi_file_separate:
+        raw_bases = tuple(
+            normalize_output_base(Path(path).stem) for path in request.input_paths
+        )
+    else:
+        ranked_raw_base = normalize_output_base(request.output_base)
+        if not ranked_raw_base and request.input_paths:
+            ranked_raw_base = normalize_output_base(Path(request.input_paths[0]).stem)
+        raw_bases = (ranked_raw_base,)
+    for raw_base in raw_bases:
+        errors.extend(validate_output_base(raw_base))
 
-    proposed_stem = suggest_output_base(request)
-    errors.extend(validate_output_base(proposed_stem))
+    proposed_stems = suggest_output_bases(request)
+    for proposed_stem in proposed_stems:
+        errors.extend(validate_output_base(proposed_stem))
+    output_paths = build_output_paths(request) if proposed_stems and all(proposed_stems) else ()
 
-    output_paths = build_output_paths(request) if proposed_stem else ()
+    # Name collisions are pure path checks, so they apply to estimates as well
+    # as runnable jobs.  Existing-file and writeability checks remain skipped
+    # for estimates.
+    input_keys = set(input_keys_list)
+    output_keys: set[str] = set()
+    for output_path in output_paths:
+        output_key = _canonical_path(output_path)
+        if output_key in input_keys:
+            errors.append(f"Output path may not equal an input path: {output_path.name}.")
+        if output_key in output_keys:
+            errors.append(f"Duplicate output path was proposed: {output_path.name}.")
+        output_keys.add(output_key)
+
     if for_estimate:
         return PreflightReport(
             valid=not errors,
@@ -310,15 +337,7 @@ def preflight(request: JobRequest, *, for_estimate: bool = False) -> PreflightRe
         except OSError:
             pass
 
-    input_keys = set(input_keys_list)
-    output_keys: set[str] = set()
     for output_path in output_paths:
-        output_key = _canonical_path(output_path)
-        if output_key in input_keys:
-            errors.append(f"Output path may not equal an input path: {output_path.name}.")
-        if output_key in output_keys:
-            errors.append(f"Duplicate output path was proposed: {output_path.name}.")
-        output_keys.add(output_key)
         if output_path.exists():
             errors.append(f"An output file already exists: {output_path.name}.")
 
@@ -336,6 +355,7 @@ __all__ = [
     "LARGE_FILE_ACCEPTANCE_BYTES",
     "LARGE_FILE_NOTICE_BYTES",
     "MAX_JOIN_INPUTS",
+    "MAX_SEPARATE_INPUTS",
     "MAX_SPLIT_OUTPUTS",
     "calculate_split_ranges",
     "preflight",

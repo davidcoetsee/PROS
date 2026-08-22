@@ -1,8 +1,8 @@
 PROS THIRD-PARTY SOFTWARE NOTICES
 =================================
 
-This notice applies to the PROS 1.2.0 Windows x64 one-file build produced from
-the pinned requirements in this repository on 20 August 2026. It is embedded in
+This notice applies to the PROS 1.5.0 Windows x64 one-file build produced from
+the pinned requirements in this repository on 22 August 2026. It is embedded in
 PROS.exe and is also supplied with the source tree. PROS itself is a separate
 work; the terms below apply to the identified third-party components.
 
@@ -30,6 +30,13 @@ The build uses, or may contain object code from, these components:
   Source: https://github.com/lxml/lxml/tree/lxml-6.1.1
 * packaging 26.3 (Apache License 2.0 or BSD 2-Clause)
   Source: https://github.com/pypa/packaging/tree/26.3
+* tkinterdnd2 0.6.2 (MIT License)
+  Source: https://github.com/Eliav2/tkinterdnd2/tree/0.6.2
+* TkDND 2.10.1 native extension and Tcl library (Petasis permissive terms)
+  Source and bundled-payload provenance:
+  https://github.com/petasis/tkdnd
+  https://github.com/Squiblydoo/tkdnd
+  https://github.com/Eliav2/tkinterdnd2/tree/0.6.2/tkinterdnd2/tkdnd
 * PyInstaller 6.22.1 (GPL-2.0-or-later with Bootloader Exception; its
   run-time hooks are Apache-2.0)
   Source: https://github.com/pyinstaller/pyinstaller/tree/v6.22.1
@@ -44,6 +51,13 @@ components:
 * qpdf 12.3.2 and Microsoft Visual C++ Runtime object code in the pikepdf wheel.
   The pikepdf wheel notice reproduced below also covers IJG JPEG code and zlib
   where included.
+* The tkinterdnd2 0.6.2 wheel bundles the TkDND 2.10.1 Windows x64 extension:
+  libtkdnd2.10.1.dll and eight Tcl scripts. The inspected wheel SHA-256 is
+  b6a8b229d26286c022bb2fbd311c2e431e4d9bbab8133be80e9c98e7bcf9fe59;
+  the Windows x64 DLL SHA-256 is
+  d8e28ead60b627f5a0b65c677a9e76dc6a4777333ba1f0fb3543de4d65716bf9.
+  The package metadata's older 2.9.5 provenance wording is superseded for this
+  payload by pkgIndex.tcl and the DLL filename, which identify TkDND 2.10.1.
 * Pillow reports FreeType 2.14.3, Little CMS 2.19, libwebp 1.6.0,
   libavif 1.4.2, libjpeg-turbo 3.1.4.1, zlib-ng 2.3.3, OpenJPEG 2.5.4,
   zlib 1.3.1-compatible code, and libtiff 4.7.1. Their source and licence
@@ -77,7 +91,10 @@ SOURCE AVAILABILITY
 
 The versioned source links above make the complete, unmodified source used for
 the covered open-source components available without charge. PROS does not
-modify pikepdf, qpdf, Pillow, lxml, CPython, Tcl/Tk, or PyInstaller.
+modify pikepdf, qpdf, Pillow, lxml, CPython, Tcl/Tk, tkinterdnd2, TkDND, or
+PyInstaller. The tkinterdnd2 release link identifies the exact wrapper and
+bundled payload inspected for this build; the separate TkDND links provide its
+upstream source and build history.
 
 In particular, pikepdf is distributed in Executable Form under MPL-2.0. Its
 corresponding Source Code Form is available at the pikepdf 10.11.0 link above,
@@ -96,8 +113,85 @@ FULL AND UPSTREAM-SUPPLIED TERMS
 -------------------------------
 
 The sections below reproduce the licence files shipped by the exact Python
-installation and wheels used to build PROS. Repeated common licence texts are
-retained deliberately so that each upstream notice remains intact.
+installation and wheels used to build PROS, plus the required upstream TkDND
+notice that the tkinterdnd2 wheel does not itself include. Repeated common
+licence texts are retained deliberately so that each upstream notice remains
+intact.
+
+
+tkinterdnd2 0.6.2 — LICENSE
+===========================
+
+MIT License
+
+Copyright (c) 2020 Philippe Gagné
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+TkDND 2.10.1 — license.terms
+============================
+
+This software is copyrighted by:
+   Georgios Petasis, Athens, Greece.
+   e-mail: petasisg@yahoo.gr, petasis@iit.demokritos.gr
+
+   Mac portions (c) 2009-2014 Kevin Walzer/WordTech Communications LLC,
+   kw@codebykevin.com
+
+The following terms apply to all files associated with the
+software unless explicitly disclaimed in individual files.
+
+The authors hereby grant permission to use, copy, modify, distribute,
+and license this software and its documentation for any purpose, provided
+that existing copyright notices are retained in all copies and that this
+notice is included verbatim in any distributions. No written agreement,
+license, or royalty fee is required for any of the authorized uses.
+Modifications to this software may be copyrighted by their authors
+and need not follow the licensing terms described here, provided that
+the new terms are clearly indicated on the first page of each file where
+they apply.
+
+IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
+FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
+DERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE
+IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE
+NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+MODIFICATIONS.
+
+GOVERNMENT USE: If you are acquiring this software on behalf of the
+U.S. government, the Government shall have only "Restricted Rights"
+in the software and related documentation as defined in the Federal
+Acquisition Regulations (FARs) in Clause 52.227.19 (c) (2).  If you
+are acquiring the software on behalf of the Department of Defense, the
+software shall be classified as "Commercial Computer Software" and the
+Government shall have only "Restricted Rights" as defined in Clause
+252.227-7013 (c) (1) of DFARs.  Notwithstanding the foregoing, the
+authors grant the U.S. Government and others acting in its behalf
+permission to use and distribute the software in accordance with the
+terms specified in this license.
 
 
 CPython 3.13.15 — LICENSE.txt

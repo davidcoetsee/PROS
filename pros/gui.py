@@ -26,6 +26,10 @@ from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 from typing import Any
 
+from PIL import Image, ImageTk
+from tkinterdnd2 import COPY, DND_FILES, REFUSE_DROP, TkinterDnD
+
+from . import __version__
 from .models import JobRequest, JobResult, PdfInfo, StructureMode
 
 try:
@@ -39,6 +43,7 @@ from .pdf_engine import inspect_pdf
 from .validation import (
     LARGE_FILE_NOTICE_BYTES,
     MAX_JOIN_INPUTS,
+    MAX_SEPARATE_INPUTS,
     MAX_SPLIT_OUTPUTS,
     calculate_split_ranges,
     preflight,
@@ -63,6 +68,8 @@ HEADER_TAGLINE = (
     "PROS - Free Basic PDF Editor: [P]asswords removed · file sizes [R]educed · "
     "[O]rganise & join · [S]plit files"
 )
+HEADER_IMAGE_MAX_SIZE = (1160, 96)
+ABOUT_IMAGE_MAX_SIZE = (112, 112)
 LARGE_FILE_STATUS = "This file is larger than 120 MB and may take longer than usual to process"
 NO_PROGRESS_CANCELLING_STATUS = (
     "No progress was detected for five minutes. We have requested safe cancellation "
@@ -80,10 +87,32 @@ FORCED_CANCELLATION_ERROR = (
 )
 PROCESS_DISABLED_BG = "#d1d5db"
 PROCESS_DISABLED_FG = "#6b7280"
-PROCESS_ENABLED_BG = "#1769aa"
+PROCESS_ENABLED_BG = "#0b67c9"
 PROCESS_ENABLED_FG = "#ffffff"
 SPLIT_INVALID_BG = "#ff5a5f"
 SPLIT_NORMAL_BG = "#ffffff"
+PRIMARY_BLUE = "#0b67c9"
+PRIMARY_BLUE_DARK = "#0756aa"
+SUCCESS_GREEN = "#22a447"
+WORKFLOW_BORDER = "#d8e0e8"
+WORKFLOW_MUTED = "#5f6b7a"
+WORKFLOW_INCOMPLETE = "#dc2626"
+DISPLAY_BACKGROUND = "#ffffff"
+DISPLAY_BORDER = "#aeb8c4"
+SEGMENT_BACKGROUND = "#f7f9fb"
+SEGMENT_ACTIVE_BACKGROUND = "#e8f1fb"
+SEGMENT_DISABLED_BACKGROUND = "#e5e8ec"
+SEGMENT_FOREGROUND = "#263445"
+SEGMENT_DISABLED_FOREGROUND = "#7b8490"
+SEGMENT_FONT = ("Segoe UI", 9, "bold")
+SEGMENT_PADX = 8
+SEGMENT_PADY = 8
+HEADER_PRIVACY_TEXT = (
+    "Private and offline — source PDFs stay on this computer and are never changed."
+)
+DROP_ZONE_BG = "#f4f9ff"
+DROP_ZONE_ACTIVE_BG = "#dceeff"
+DROP_ZONE_DISABLED_BG = "#f5f6f7"
 
 
 def _application_dir() -> Path:
@@ -146,13 +175,70 @@ class _SplitRow:
     validate_after: str | None = None
 
 
+class _SegmentButton(tk.Button):
+    """Classic Tk button with the same reliable visual family as mode tabs."""
+
+    def __init__(self, master: tk.Widget, **kwargs: object) -> None:
+        kwargs.setdefault("background", SEGMENT_BACKGROUND)
+        kwargs.setdefault("foreground", SEGMENT_FOREGROUND)
+        kwargs.setdefault("disabledforeground", SEGMENT_DISABLED_FOREGROUND)
+        kwargs.setdefault("activebackground", SEGMENT_ACTIVE_BACKGROUND)
+        kwargs.setdefault("activeforeground", SEGMENT_FOREGROUND)
+        kwargs.setdefault("font", SEGMENT_FONT)
+        kwargs.setdefault("relief", "solid")
+        kwargs.setdefault("overrelief", "solid")
+        kwargs.setdefault("borderwidth", 1)
+        kwargs.setdefault("highlightthickness", 0)
+        kwargs.setdefault("padx", SEGMENT_PADX)
+        kwargs.setdefault("pady", SEGMENT_PADY)
+        kwargs.setdefault("cursor", "hand2")
+        kwargs.setdefault("takefocus", True)
+        super().__init__(master, **kwargs)
+
+    def state(self, states: Sequence[str] | None = None) -> tuple[str, ...]:
+        if states is None:
+            return ("disabled",) if str(self.cget("state")) == "disabled" else ()
+        disabled = str(self.cget("state")) == "disabled"
+        for state in states:
+            if state == "disabled":
+                disabled = True
+            elif state == "!disabled":
+                disabled = False
+        self.configure(
+            state="disabled" if disabled else "normal",
+            background=(
+                SEGMENT_DISABLED_BACKGROUND if disabled else SEGMENT_BACKGROUND
+            ),
+            foreground=(
+                SEGMENT_DISABLED_FOREGROUND if disabled else SEGMENT_FOREGROUND
+            ),
+        )
+        return ()
+
+    def instate(
+        self,
+        states: Sequence[str],
+        callback: object | None = None,
+        *args: object,
+    ) -> bool | object:
+        disabled = str(self.cget("state")) == "disabled"
+        matches = all(
+            (state == "disabled" and disabled)
+            or (state == "!disabled" and not disabled)
+            for state in states
+        )
+        if matches and callable(callback):
+            return callback(*args)
+        return matches
+
+
 class ProsApp(tk.Tk):
     """Complete UI1-UI32 desktop application window."""
 
     def __init__(self) -> None:
         super().__init__(className="PROS")
         self.title("PROS — Portable PDF Processing")
-        self.geometry("1080x860")
+        self.geometry("1280x820")
         self.minsize(880, 680)
         self.option_add("*tearOff", False)
 
@@ -179,6 +265,24 @@ class ProsApp(tk.Tk):
         self._display_phase_percent = 0.0
         self._synthetic_progress_interval = 1.0
         self._next_synthetic_progress_at = 0.0
+        self._brand_header_photo: ImageTk.PhotoImage | None = None
+        self._brand_header_render_after: str | None = None
+        self._brand_header_width = 0
+        self._about_window: tk.Toplevel | None = None
+        self._about_photo: ImageTk.PhotoImage | None = None
+        self._dnd_available = False
+        self._dnd_widgets: list[tk.Widget] = []
+        self._tree_drag_uid: str | None = None
+        self._tree_drag_changed = False
+        self._tree_drag_start_y: int | None = None
+        self._focus_reveal_after: str | None = None
+        self._mode_confirmed = False
+        self._confirmed_mode: StructureMode | None = None
+        self._last_mode_click_value = ""
+        self._last_mode_click_at = 0.0
+        self._step_cards: dict[
+            str, tuple[tk.Frame, tk.Canvas, int, int]
+        ] = {}
 
         self._inspection_generation = 0
         self._inspection_queue: queue.Queue[tuple[int, str, PdfInfo]] = queue.Queue()
@@ -215,10 +319,16 @@ class ProsApp(tk.Tk):
         self.file_progress_var = tk.DoubleVar(value=0.0)
         self.file_progress_text_var = tk.StringVar(value="No file is being processed.")
         self.readiness_text_var = tk.StringVar(value="Not ready")
+        self.input_summary_var = tk.StringVar(value="No PDFs selected")
+        self.drop_zone_text_var = tk.StringVar(value="Add PDF files to begin")
+        self.review_action_var = tk.StringVar(value="Choose a processing action")
+        self.review_processing_var = tk.StringVar(value="None selected")
+        self.review_output_var = tk.StringVar(value="Choose an input PDF to preview output")
 
         self._configure_style()
         self._build_menu()
         self._build_ui()
+        self._setup_drag_drop()
         self._set_icon()
         self.protocol("WM_DELETE_WINDOW", self._on_close)
 
@@ -240,8 +350,19 @@ class ProsApp(tk.Tk):
                     break
                 except tk.TclError:
                     continue
-        style.configure("Title.TLabel", font=("Segoe UI", 18, "bold"))
-        style.configure("Subtitle.TLabel", foreground="#4a5568")
+        style.configure("TFrame", background="#ffffff")
+        style.configure("TLabel", background="#ffffff", foreground="#263445")
+        style.configure("TLabelframe", background="#ffffff")
+        style.configure("TLabelframe.Label", background="#ffffff")
+        style.configure("TCheckbutton", background="#ffffff")
+        style.map("TCheckbutton", background=[("active", "#ffffff")])
+        style.configure("TRadiobutton", background="#ffffff")
+        style.configure(
+            "Title.TLabel", background="#ffffff", font=("Segoe UI", 18, "bold")
+        )
+        style.configure(
+            "Subtitle.TLabel", background="#ffffff", foreground="#4a5568"
+        )
         style.configure("Section.TLabelframe", padding=10)
         style.configure("Section.TLabelframe.Label", font=("Segoe UI", 10, "bold"))
         style.configure("Disabled.TLabelframe", padding=10)
@@ -255,6 +376,62 @@ class ProsApp(tk.Tk):
         style.configure("Danger.TLabel", foreground="#9b1c1c")
         style.configure("Hint.TLabel", foreground="#5f6b7a")
         style.configure("SectionHeading.TLabel", font=("Segoe UI", 10, "bold"))
+        style.configure("Workflow.TFrame", background="#ffffff")
+        style.configure(
+            "WorkflowCard.TFrame",
+            background="#ffffff",
+            relief="solid",
+            borderwidth=1,
+        )
+        style.configure(
+            "StepTitle.TLabel",
+            background="#ffffff",
+            foreground="#182230",
+            font=("Segoe UI", 11, "bold"),
+        )
+        style.configure(
+            "CardText.TLabel", background="#ffffff", foreground="#27364a"
+        )
+        style.configure(
+            "CardHint.TLabel", background="#ffffff", foreground=WORKFLOW_MUTED
+        )
+        style.configure(
+            "ReviewKey.TLabel",
+            background="#ffffff",
+            foreground=WORKFLOW_MUTED,
+            font=("Segoe UI", 9),
+        )
+        style.configure(
+            "ReviewValue.TLabel",
+            background="#ffffff",
+            foreground="#182230",
+            font=("Segoe UI", 9, "bold"),
+        )
+        style.configure(
+            "Pros.Treeview",
+            background=DISPLAY_BACKGROUND,
+            fieldbackground=DISPLAY_BACKGROUND,
+            foreground="#27364a",
+            bordercolor=DISPLAY_BORDER,
+            lightcolor=DISPLAY_BORDER,
+            darkcolor=DISPLAY_BORDER,
+            relief="solid",
+            borderwidth=1,
+            rowheight=22,
+        )
+        style.map(
+            "Pros.Treeview",
+            background=[("selected", PRIMARY_BLUE)],
+            foreground=[("selected", "#ffffff")],
+        )
+        style.configure(
+            "Pros.Treeview.Heading",
+            background=DISPLAY_BACKGROUND,
+            foreground=SEGMENT_FOREGROUND,
+            relief="solid",
+            borderwidth=1,
+            font=SEGMENT_FONT,
+        )
 
     def _build_menu(self) -> None:
         menubar = tk.Menu(self)
@@ -272,13 +449,81 @@ class ProsApp(tk.Tk):
     def _build_ui(self) -> None:
         outer = ttk.Frame(self)
         outer.pack(fill="both", expand=True)
-        self.main_canvas = tk.Canvas(outer, highlightthickness=0, borderwidth=0)
-        scrollbar = ttk.Scrollbar(outer, orient="vertical", command=self.main_canvas.yview)
-        self.main_canvas.configure(yscrollcommand=scrollbar.set)
-        self.main_canvas.pack(side="left", fill="both", expand=True)
-        scrollbar.pack(side="right", fill="y")
+        outer.rowconfigure(2, weight=1)
+        outer.columnconfigure(0, weight=1)
+        self.outer_frame = outer
 
-        self.main_content = ttk.Frame(self.main_canvas, padding=(18, 14, 18, 18))
+        # Branding remains visible while the workflow scrolls.  The supplied
+        # wordmark is redrawn from its original pixels for the available
+        # logical width, so it is never stretched or modified on disk.
+        header_panel = tk.Frame(
+            outer,
+            background="#ffffff",
+            padx=18,
+            pady=8,
+            highlightbackground=WORKFLOW_BORDER,
+            highlightthickness=0,
+            borderwidth=0,
+        )
+        header_panel.grid(row=0, column=0, sticky="ew")
+        header_panel.columnconfigure(1, weight=1)
+        self.header_panel = header_panel
+        self.header_frame = header_panel
+        self.header_image_label = tk.Label(
+            header_panel, background="#ffffff", borderwidth=0, anchor="w"
+        )
+        self.title_label = ttk.Label(header_panel, text="PROS", style="Title.TLabel")
+        self.tagline_label = ttk.Label(
+            header_panel,
+            text=HEADER_TAGLINE.removeprefix("PROS"),
+            style="Subtitle.TLabel",
+            wraplength=1040,
+            justify="left",
+        )
+        self.header_privacy_label = ttk.Label(
+            header_panel,
+            text=HEADER_PRIVACY_TEXT,
+            style="CardHint.TLabel",
+        )
+        self.header_privacy_label.grid(
+            row=1, column=0, columnspan=2, sticky="w", pady=(3, 0)
+        )
+        self._render_brand_header()
+        header_panel.bind("<Configure>", self._on_header_configure)
+
+        ttk.Separator(outer, orient="horizontal").grid(
+            row=1, column=0, sticky="ew"
+        )
+
+        workspace = ttk.Frame(outer)
+        workspace.grid(row=2, column=0, sticky="nsew")
+        workspace.rowconfigure(0, weight=1)
+        workspace.columnconfigure(0, weight=1)
+        self.main_canvas = tk.Canvas(
+            workspace,
+            highlightthickness=0,
+            borderwidth=0,
+            background="#f5f7fa",
+        )
+        vertical = ttk.Scrollbar(
+            workspace, orient="vertical", command=self.main_canvas.yview
+        )
+        horizontal = ttk.Scrollbar(
+            workspace, orient="horizontal", command=self.main_canvas.xview
+        )
+        self.main_canvas.configure(
+            yscrollcommand=vertical.set, xscrollcommand=horizontal.set
+        )
+        self.main_canvas.grid(row=0, column=0, sticky="nsew")
+        vertical.grid(row=0, column=1, sticky="ns")
+        horizontal.grid(row=1, column=0, sticky="ew")
+        horizontal.grid_remove()
+        self.main_vertical_scrollbar = vertical
+        self.main_horizontal_scrollbar = horizontal
+
+        self.main_content = ttk.Frame(
+            self.main_canvas, padding=(18, 12, 18, 16), style="Workflow.TFrame"
+        )
         self._canvas_window = self.main_canvas.create_window(
             (0, 0), window=self.main_content, anchor="nw"
         )
@@ -286,19 +531,22 @@ class ProsApp(tk.Tk):
         self.main_canvas.bind("<Configure>", self._on_canvas_configure)
         self.main_canvas.bind_all("<MouseWheel>", self._on_mouse_wheel, add="+")
 
-        header = ttk.Frame(self.main_content)
-        header.pack(fill="x", pady=(0, 10))
-        header.columnconfigure(1, weight=1)
-        self.title_label = ttk.Label(header, text="PROS", style="Title.TLabel")
-        self.title_label.grid(row=0, column=0, sticky="nw")
-        self.tagline_label = ttk.Label(
-            header,
-            text=HEADER_TAGLINE.removeprefix("PROS"),
-            style="Subtitle.TLabel",
-            wraplength=840,
-            justify="left",
-        )
-        self.tagline_label.grid(row=0, column=1, sticky="ew", padx=(3, 0), pady=(7, 0))
+        self.main_content.columnconfigure(0, weight=1)
+        workflow = ttk.Frame(self.main_content, style="Workflow.TFrame")
+        workflow.grid(row=0, column=0, sticky="nsew")
+        workflow.columnconfigure(0, weight=3, minsize=610)
+        workflow.columnconfigure(1, minsize=1)
+        workflow.columnconfigure(2, weight=2, minsize=420)
+        self.workflow_frame = workflow
+        self.left_workflow = ttk.Frame(workflow, style="Workflow.TFrame")
+        self.left_workflow.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+        self.left_workflow.columnconfigure(0, weight=1)
+        self.left_workflow.rowconfigure(1, weight=1)
+        self.right_workflow = ttk.Frame(workflow, style="Workflow.TFrame")
+        self.right_workflow.grid(row=0, column=2, sticky="nsew", padx=(12, 0))
+        self.right_workflow.columnconfigure(0, weight=1)
+        self.workflow_separator = ttk.Separator(workflow, orient="vertical")
+        self.workflow_separator.grid(row=0, column=1, sticky="ns")
 
         self._build_function_group()
         self._build_input_group()
@@ -306,88 +554,268 @@ class ProsApp(tk.Tk):
         self._build_options_group()
         self._build_output_group()
         self._build_progress_group()
+        self._build_action_bar(outer)
+        self._focus_reveal_binding = self.bind(
+            "<FocusIn>", self._on_descendant_focus_in, add="+"
+        )
+
+    @staticmethod
+    def _workflow_card(parent: tk.Widget) -> tk.Frame:
+        return tk.Frame(
+            parent,
+            background="#ffffff",
+            padx=14,
+            pady=12,
+            highlightbackground=WORKFLOW_INCOMPLETE,
+            highlightcolor=WORKFLOW_INCOMPLETE,
+            highlightthickness=1,
+            borderwidth=0,
+        )
+
+    def _make_step_header(
+        self, parent: tk.Widget, number: int, title: str
+    ) -> tuple[tk.Frame, tk.Canvas, int, int, ttk.Label]:
+        """Create the numbered workflow heading used by each card."""
+
+        header = tk.Frame(parent, background="#ffffff")
+        header.columnconfigure(1, weight=1)
+        badge = tk.Canvas(
+            header,
+            width=28,
+            height=28,
+            highlightthickness=0,
+            borderwidth=0,
+            background="#ffffff",
+        )
+        badge.grid(row=0, column=0, sticky="w")
+        oval_id = badge.create_oval(
+            2, 2, 26, 26, fill=WORKFLOW_INCOMPLETE, outline=WORKFLOW_INCOMPLETE
+        )
+        text_id = badge.create_text(
+            14, 14, text=str(number), fill="#ffffff", font=("Segoe UI", 9, "bold")
+        )
+        label = ttk.Label(header, text=title, style="StepTitle.TLabel")
+        label.grid(row=0, column=1, sticky="w", padx=(7, 0))
+        return header, badge, oval_id, text_id, label
+
+    def _register_step(
+        self,
+        key: str,
+        card: tk.Frame,
+        badge: tk.Canvas,
+        oval_id: int,
+        text_id: int,
+    ) -> None:
+        self._step_cards[key] = (card, badge, oval_id, text_id)
+
+    @staticmethod
+    def _set_step_number(canvas: tk.Canvas, text_id: int, number: int) -> None:
+        canvas.itemconfigure(text_id, text=str(number))
+
+    def _on_header_configure(self, event: tk.Event[Any]) -> None:
+        available = max(360, min(HEADER_IMAGE_MAX_SIZE[0], int(event.width) - 36))
+        if abs(available - self._brand_header_width) < 12:
+            return
+        if self._brand_header_render_after is not None:
+            try:
+                self.after_cancel(self._brand_header_render_after)
+            except tk.TclError:
+                pass
+        self._brand_header_render_after = self.after(
+            60, lambda width=available: self._render_brand_header(width)
+        )
+
+    def _render_brand_header(self, max_width: int | None = None) -> None:
+        """Render the canonical wordmark or the exact accessible text fallback."""
+
+        self._brand_header_render_after = None
+        self.header_image_label.grid_remove()
+        self.title_label.grid_remove()
+        self.tagline_label.grid_remove()
+        self.header_image_label.configure(image="")
+        width = max_width or min(HEADER_IMAGE_MAX_SIZE[0], 840)
+        height = max(1, min(HEADER_IMAGE_MAX_SIZE[1], round(width / 12)))
+        self._brand_header_width = width
+        self._brand_header_photo = self._load_brand_photo(
+            "assets/PROS-Logo.png", (width, height)
+        )
+        if self._brand_header_photo is not None:
+            self.header_image_label.configure(image=self._brand_header_photo)
+            self.header_image_label.grid(
+                row=0, column=0, columnspan=2, sticky="w"
+            )
+        else:
+            # Keep the exact accessible text treatment when an asset is
+            # missing, corrupt, or unavailable in a frozen bundle.
+            self.title_label.grid(row=0, column=0, sticky="nw")
+            self.tagline_label.grid(row=0, column=1, sticky="ew", padx=(3, 0))
 
     def _build_function_group(self) -> None:
-        group = ttk.LabelFrame(
-            self.main_content, text="Function Selection", style="Section.TLabelframe"
-        )
-        group.pack(fill="x", pady=5)
-        group.columnconfigure(5, weight=1)
+        group = self._workflow_card(self.left_workflow)
+        group.grid(row=0, column=0, sticky="ew", pady=(0, 10))
+        group.columnconfigure(0, weight=1)
         self.function_group = group
 
-        self.remove_password_check = ttk.Checkbutton(
+        heading, badge, oval_id, text_id, label = self._make_step_header(
+            group, 1, "Choose what you want to do"
+        )
+        heading.grid(row=0, column=0, sticky="ew")
+        self.function_step_badge = badge
+        self.function_step_text = text_id
+        self.function_step_label = label
+        self._register_step("function", group, badge, oval_id, text_id)
+
+        ttk.Label(
             group,
+            text="Select one file arrangement. You can add processing options below.",
+            style="CardHint.TLabel",
+        ).grid(row=1, column=0, sticky="w", pady=(5, 9))
+
+        segment = tk.Frame(
+            group,
+            background="#dce3ea",
+            highlightbackground="#c8d2dc",
+            highlightthickness=1,
+            borderwidth=0,
+        )
+        segment.grid(row=2, column=0, sticky="ew")
+        for column in range(3):
+            segment.columnconfigure(column, weight=1, uniform="mode")
+
+        common_mode_options: dict[str, object] = {
+            "variable": self.mode_var,
+            "command": self._on_mode_changed,
+            "indicatoron": False,
+            "relief": "solid",
+            "overrelief": "solid",
+            "borderwidth": 1,
+            "highlightthickness": 0,
+            "font": SEGMENT_FONT,
+            "padx": SEGMENT_PADX,
+            "pady": SEGMENT_PADY,
+            "cursor": "hand2",
+        }
+        self.neither_radio = tk.Radiobutton(
+            segment,
+            text="Keep separate",
+            value=StructureMode.NEITHER.value,
+            **common_mode_options,
+        )
+        self.join_radio = tk.Radiobutton(
+            segment,
+            text="Combine into one PDF",
+            value=StructureMode.JOIN.value,
+            **common_mode_options,
+        )
+        self.split_radio = tk.Radiobutton(
+            segment,
+            text="Split one PDF",
+            value=StructureMode.SPLIT.value,
+            **common_mode_options,
+        )
+        self.neither_radio.grid(row=0, column=0, sticky="nsew")
+        self.join_radio.grid(row=0, column=1, sticky="nsew")
+        self.split_radio.grid(row=0, column=2, sticky="nsew")
+        self.mode_buttons = (
+            self.neither_radio,
+            self.join_radio,
+            self.split_radio,
+        )
+
+        ttk.Separator(group, orient="horizontal").grid(
+            row=3, column=0, sticky="ew", pady=(12, 9)
+        )
+        ttk.Label(
+            group, text="Additional processing", style="CardText.TLabel"
+        ).grid(row=4, column=0, sticky="w")
+        extras = ttk.Frame(group, style="Workflow.TFrame")
+        extras.grid(row=5, column=0, sticky="ew", pady=(6, 0))
+        self.additional_processing_frame = extras
+        self.remove_password_check = ttk.Checkbutton(
+            extras,
             text="Remove password",
             variable=self.remove_password_var,
             command=self._on_password_function_changed,
         )
-        self.remove_password_check.grid(row=0, column=0, sticky="w", padx=(0, 22))
+        self.remove_password_check.grid(row=0, column=0, sticky="w", padx=(0, 18))
         self.compress_check = ttk.Checkbutton(
-            group,
-            text="Compress PDF",
+            extras,
+            text="Reduce file size",
             variable=self.compress_var,
             command=self._on_compression_changed,
         )
-        self.compress_check.grid(row=0, column=1, sticky="w", padx=(0, 30))
-
-        ttk.Label(group, text="Structure:").grid(row=0, column=2, sticky="e", padx=(0, 8))
-        self.join_radio = ttk.Radiobutton(
-            group,
-            text="Join",
-            value=StructureMode.JOIN.value,
-            variable=self.mode_var,
-            command=self._on_mode_changed,
+        self.compress_check.grid(row=0, column=1, sticky="w", padx=(0, 18))
+        self.grayscale_check = ttk.Checkbutton(
+            extras,
+            text="Convert to grayscale",
+            variable=self.grayscale_var,
+            command=self._on_grayscale_changed,
         )
-        self.split_radio = ttk.Radiobutton(
-            group,
-            text="Split",
-            value=StructureMode.SPLIT.value,
-            variable=self.mode_var,
-            command=self._on_mode_changed,
-        )
-        self.neither_radio = ttk.Radiobutton(
-            group,
-            text="Neither",
-            value=StructureMode.NEITHER.value,
-            variable=self.mode_var,
-            command=self._on_mode_changed,
-        )
-        self.join_radio.grid(row=0, column=3, sticky="w", padx=4)
-        self.split_radio.grid(row=0, column=4, sticky="w", padx=4)
-        self.neither_radio.grid(row=0, column=5, sticky="w", padx=4)
+        self.grayscale_check.grid(row=0, column=2, sticky="w")
+        self._style_mode_buttons()
 
     def _build_input_group(self) -> None:
-        group = ttk.LabelFrame(
-            self.main_content, text="Input Files", style="Section.TLabelframe"
-        )
-        group.pack(fill="both", expand=True, pady=5)
-        group.columnconfigure(1, weight=1)
-        group.rowconfigure(1, weight=1)
+        group = self._workflow_card(self.left_workflow)
+        group.grid(row=1, column=0, sticky="nsew", pady=(0, 10))
+        group.columnconfigure(0, weight=1)
+        group.rowconfigure(3, weight=1)
         self.input_group = group
 
-        ttk.Label(group, text="Current input folder:").grid(row=0, column=0, sticky="w")
+        heading, badge, oval_id, text_id, label = self._make_step_header(
+            group, 2, "Add your PDF files"
+        )
+        heading.grid(row=0, column=0, sticky="ew")
+        heading.columnconfigure(1, weight=1)
+        self.input_step_badge = badge
+        self.input_step_text = text_id
+        self.input_step_label = label
+        self._register_step("input", group, badge, oval_id, text_id)
+
+        # Kept as a hidden, read-only value for accessibility integrations and
+        # backwards-compatible tests; the redesigned table displays filenames
+        # directly instead of consuming a row with the current folder.
         self.input_folder_entry = ttk.Entry(
             group, textvariable=self.input_folder_var, state="readonly"
         )
-        self.input_folder_entry.grid(row=0, column=1, sticky="ew", padx=8)
-        self.add_pdf_button = ttk.Button(group, text="[+] Add PDF", command=self._add_pdfs)
-        self.add_pdf_button.grid(row=0, column=2, sticky="e")
+        self.input_folder_entry.grid(row=1, column=0, sticky="ew")
+        self.input_folder_entry.grid_remove()
 
+        self.drop_zone = tk.Label(
+            group,
+            textvariable=self.drop_zone_text_var,
+            background=DROP_ZONE_BG,
+            foreground=PRIMARY_BLUE,
+            activebackground=DROP_ZONE_ACTIVE_BG,
+            relief="groove",
+            borderwidth=1,
+            font=("Segoe UI", 9, "bold"),
+            padx=12,
+            pady=11,
+            cursor="hand2",
+        )
+        self.drop_zone.grid(row=2, column=0, sticky="ew", pady=(9, 8))
+        self.drop_zone.bind("<Button-1>", lambda _event: self._add_pdfs())
+
+        tree_holder = ttk.Frame(group, style="Workflow.TFrame")
+        tree_holder.grid(row=3, column=0, sticky="nsew")
+        tree_holder.rowconfigure(0, weight=1)
+        tree_holder.columnconfigure(0, weight=1)
         columns = ("order", "filename", "protection", "size", "pages", "status")
         self.input_tree = ttk.Treeview(
-            group,
+            tree_holder,
             columns=columns,
             show="headings",
-            height=6,
+            height=8,
             selectmode="browse",
+            style="Pros.Treeview",
         )
         headings = {
-            "order": ("#", 42, "center"),
-            "filename": ("Filename", 290, "w"),
-            "protection": ("Protection", 105, "center"),
-            "size": ("Size", 85, "e"),
-            "pages": ("Pages", 65, "center"),
-            "status": ("File check", 230, "w"),
+            "order": ("Order", 58, "center"),
+            "filename": ("File name", 235, "w"),
+            "protection": ("Protection", 90, "center"),
+            "size": ("Size", 74, "e"),
+            "pages": ("Pages", 58, "center"),
+            "status": ("Status", 125, "w"),
         }
         for column, (title, width, anchor) in headings.items():
             self.input_tree.heading(column, text=title)
@@ -398,33 +826,62 @@ class ProsApp(tk.Tk):
                 stretch=column in {"filename", "status"},
                 anchor=anchor,
             )
-        tree_scroll = ttk.Scrollbar(group, orient="vertical", command=self.input_tree.yview)
+        tree_scroll = ttk.Scrollbar(
+            tree_holder, orient="vertical", command=self.input_tree.yview
+        )
         self.input_tree.configure(yscrollcommand=tree_scroll.set)
-        self.input_tree.grid(row=1, column=0, columnspan=3, sticky="nsew", pady=(9, 6))
-        tree_scroll.grid(row=1, column=3, sticky="ns", pady=(9, 6))
+        self.input_tree.grid(row=0, column=0, sticky="nsew")
+        tree_scroll.grid(row=0, column=1, sticky="ns")
         self.input_tree.bind("<<TreeviewSelect>>", self._on_input_selected)
+        self.input_tree.bind("<ButtonPress-1>", self._on_tree_drag_start, add="+")
+        self.input_tree.bind("<B1-Motion>", self._on_tree_drag_motion, add="+")
+        self.input_tree.bind("<ButtonRelease-1>", self._on_tree_drag_end, add="+")
 
-        buttons = ttk.Frame(group)
-        buttons.grid(row=2, column=0, columnspan=3, sticky="ew")
-        self.remove_pdf_button = ttk.Button(
-            buttons, text="[-] Remove PDF", command=self._remove_selected_pdf
-        )
-        self.remove_pdf_button.pack(side="left")
-        self.clear_list_button = ttk.Button(
-            buttons, text="Clear List", command=self._clear_inputs
-        )
-        self.clear_list_button.pack(side="left", padx=7)
+        buttons = ttk.Frame(group, style="Workflow.TFrame")
+        buttons.grid(row=4, column=0, sticky="ew", pady=(8, 0))
         ttk.Label(
             buttons,
-            text="Only local PDF files are accepted; original files are never changed.",
-            style="Hint.TLabel",
-        ).pack(side="right")
+            textvariable=self.input_summary_var,
+            style="CardHint.TLabel",
+        ).pack(side="left")
+
+        controls = ttk.Frame(buttons, style="Workflow.TFrame")
+        controls.pack(side="right")
+        self.input_controls = controls
+        self.join_options = ttk.Frame(controls, style="Workflow.TFrame")
+        self.move_up_button = _SegmentButton(
+            self.join_options,
+            text="Move up",
+            command=lambda: self._move_input(-1),
+        )
+        self.move_up_button.pack(side="left")
+        self.move_down_button = _SegmentButton(
+            self.join_options,
+            text="Move down",
+            command=lambda: self._move_input(1),
+        )
+        self.move_down_button.pack(side="left", padx=(4, 0))
+        self.join_options.pack(side="left", padx=(0, 4))
+        self.add_pdf_button = _SegmentButton(
+            controls, text="+ Add PDFs", command=self._add_pdfs
+        )
+        self.add_pdf_button.pack(side="left")
+        self.remove_pdf_button = _SegmentButton(
+            controls,
+            text="- Remove selected",
+            command=self._remove_selected_pdf,
+        )
+        self.remove_pdf_button.pack(side="left", padx=(4, 0))
+        self.clear_list_button = _SegmentButton(
+            controls, text="Clear", command=self._clear_inputs
+        )
+        self.clear_list_button.pack(side="left", padx=(4, 0))
 
     def _build_password_group(self) -> None:
         group = ttk.LabelFrame(
-            self.main_content, text="Password", style="Disabled.TLabelframe"
+            self.left_workflow, text="Password access", style="Disabled.TLabelframe"
         )
-        group.pack(fill="x", pady=5)
+        group.grid(row=2, column=0, sticky="ew", pady=(0, 10))
         group.columnconfigure(1, weight=1)
         self.password_group = group
 
@@ -462,51 +919,64 @@ class ProsApp(tk.Tk):
         self.per_file_password_entry.bind("<KeyRelease>", self._on_per_file_password_key)
 
     def _build_options_group(self) -> None:
-        group = ttk.LabelFrame(
-            self.main_content, text="Join or Split Options", style="Section.TLabelframe"
-        )
-        group.pack(fill="x", pady=5)
+        group = self._workflow_card(self.right_workflow)
+        group.grid(row=0, column=0, sticky="nsew", pady=(0, 10))
+        group.columnconfigure(0, weight=1)
         self.options_group = group
 
-        self.join_options = ttk.Frame(group)
-        ttk.Label(
-            self.join_options,
-            text="PDFs will be joined from top to bottom in the displayed file order.",
-        ).pack(side="left")
-        self.move_down_button = ttk.Button(
-            self.join_options, text="Down", width=10, command=lambda: self._move_input(1)
+        heading, badge, oval_id, text_id, label = self._make_step_header(
+            group, 3, "Choose where to split"
         )
-        self.move_down_button.pack(side="right")
-        self.move_up_button = ttk.Button(
-            self.join_options, text="Up", width=10, command=lambda: self._move_input(-1)
-        )
-        self.move_up_button.pack(side="right", padx=7)
+        heading.grid(row=0, column=0, sticky="ew")
+        self.options_step_badge = badge
+        self.options_step_text = text_id
+        self.options_step_label = label
+        self._register_step("split", group, badge, oval_id, text_id)
 
-        self.split_options = ttk.Frame(group)
+        self.split_options = ttk.Frame(group, style="Workflow.TFrame")
+        self.split_options.grid(row=1, column=0, sticky="nsew", pady=(8, 0))
         self.split_options.columnconfigure(0, weight=1)
-        left = ttk.Frame(self.split_options)
-        left.grid(row=0, column=0, sticky="nsew", padx=(0, 15))
-        right = ttk.Frame(self.split_options)
+        self.split_options.columnconfigure(1, weight=1)
+        left = ttk.Frame(self.split_options, style="Workflow.TFrame")
+        left.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
+        right = ttk.Frame(self.split_options, style="Workflow.TFrame")
         right.grid(row=0, column=1, sticky="nsew")
         ttk.Label(
             left,
-            text="Enter the last page of each segment (the final segment is automatic):",
+            text="Enter the last page of each part. The final part is automatic.",
+            style="CardHint.TLabel",
+            wraplength=230,
         ).pack(anchor="w")
-        self.split_entries_frame = ttk.Frame(left)
+        self.split_entries_frame = ttk.Frame(left, style="Workflow.TFrame")
         self.split_entries_frame.pack(fill="x", pady=5)
-        split_buttons = ttk.Frame(left)
-        split_buttons.pack(fill="x")
-        self.add_split_button = ttk.Button(
-            split_buttons, text="[+] Add Split", command=self._add_split_row
+        split_buttons = ttk.Frame(self.split_options, style="Workflow.TFrame")
+        split_buttons.grid(
+            row=1, column=0, columnspan=2, sticky="e", pady=(7, 0)
         )
-        self.add_split_button.pack(side="left")
-        self.remove_split_button = ttk.Button(
-            split_buttons, text="[-] Remove Split", command=self._remove_split_row
+        self.split_controls = split_buttons
+        self.add_split_button = _SegmentButton(
+            split_buttons,
+            text="+ Add split point",
+            command=self._add_split_row,
         )
-        self.remove_split_button.pack(side="left", padx=7)
+        self.clear_split_button = _SegmentButton(
+            split_buttons,
+            text="Clear",
+            command=self._clear_split_points,
+        )
+        self.clear_split_button.pack(side="right")
+        self.remove_split_button = _SegmentButton(
+            split_buttons,
+            text="- Remove split point",
+            command=self._remove_split_row,
+        )
+        self.remove_split_button.pack(side="right", padx=(4, 0))
+        self.add_split_button.pack(side="right", padx=(4, 0))
 
-        ttk.Label(right, text="Calculated output ranges:").pack(anchor="w")
-        range_holder = ttk.Frame(right)
+        ttk.Label(
+            right, text="Calculated PDF parts", style="CardText.TLabel"
+        ).pack(anchor="w")
+        range_holder = ttk.Frame(right, style="Workflow.TFrame")
         range_holder.pack(fill="both", expand=True, pady=5)
         self.range_list = tk.Listbox(
             range_holder,
@@ -514,6 +984,11 @@ class ProsApp(tk.Tk):
             width=48,
             activestyle="none",
             exportselection=False,
+            background=DISPLAY_BACKGROUND,
+            foreground="#27364a",
+            relief="solid",
+            borderwidth=1,
+            highlightthickness=0,
         )
         range_scroll = ttk.Scrollbar(
             range_holder, orient="vertical", command=self.range_list.yview
@@ -524,170 +999,372 @@ class ProsApp(tk.Tk):
         self._add_split_row(initial=True)
 
     def _build_output_group(self) -> None:
-        self.output_heading = ttk.Frame(self.main_content)
-        self.output_heading_label = ttk.Label(
-            self.output_heading, text="Output", style="SectionHeading.TLabel"
-        )
-        self.output_heading_label.pack(side="left")
-        self.grayscale_check = ttk.Checkbutton(
-            self.output_heading,
-            text="Convert to Grayscale",
-            variable=self.grayscale_var,
-            command=self._on_grayscale_changed,
-        )
-        self.grayscale_check.pack(side="left", padx=(14, 0))
-        group = ttk.LabelFrame(
-            self.main_content,
-            labelwidget=self.output_heading,
-            style="Section.TLabelframe",
-        )
-        group.pack(fill="x", pady=5)
-        group.columnconfigure(1, weight=1)
+        group = self._workflow_card(self.right_workflow)
+        group.grid(row=1, column=0, sticky="nsew", pady=(0, 10))
+        group.columnconfigure(0, weight=1)
         self.output_group = group
 
-        ttk.Label(group, text="Output folder:").grid(row=0, column=0, sticky="w")
-        self.output_folder_entry = ttk.Entry(
-            group, textvariable=self.output_folder_var, state="readonly"
+        self.output_heading, badge, oval_id, text_id, self.output_heading_label = (
+            self._make_step_header(group, 3, "Choose the output")
         )
-        self.output_folder_entry.grid(row=0, column=1, sticky="ew", padx=8)
-        self.save_as_button = ttk.Button(group, text="Save As…", command=self._save_as)
-        self.save_as_button.grid(row=0, column=2, sticky="e")
+        self.output_heading.grid(row=0, column=0, sticky="ew")
+        self.output_step_badge = badge
+        self.output_step_text = text_id
+        self._register_step("output", group, badge, oval_id, text_id)
 
-        ttk.Label(group, text="Output base name:").grid(row=1, column=0, sticky="w", pady=(8, 0))
-        self.output_base_entry = ttk.Entry(group, textvariable=self.output_base_var)
-        self.output_base_entry.grid(row=1, column=1, sticky="ew", padx=8, pady=(8, 0))
-        ttk.Label(group, text=".pdf added automatically", style="Hint.TLabel").grid(
-            row=1, column=2, sticky="w", pady=(8, 0)
+        folder_row = ttk.Frame(group, style="Workflow.TFrame")
+        folder_row.grid(row=1, column=0, sticky="ew", pady=(9, 0))
+        folder_row.columnconfigure(0, weight=1)
+        ttk.Label(folder_row, text="Output folder", style="CardText.TLabel").grid(
+            row=0, column=0, sticky="w"
+        )
+        self.save_as_button = _SegmentButton(
+            folder_row,
+            text="Choose folder…",
+            command=self._choose_output_folder,
+        )
+        self.save_as_button.grid(row=0, column=1, sticky="e")
+        self.output_folder_entry = tk.Entry(
+            folder_row,
+            textvariable=self.output_folder_var,
+            state="readonly",
+            background=DISPLAY_BACKGROUND,
+            readonlybackground=DISPLAY_BACKGROUND,
+            foreground="#27364a",
+            relief="solid",
+            borderwidth=1,
+            highlightthickness=0,
+        )
+        self.output_folder_entry.grid(
+            row=1, column=0, columnspan=2, sticky="ew", pady=(4, 0)
+        )
+
+        name_row = ttk.Frame(group, style="Workflow.TFrame")
+        name_row.grid(row=2, column=0, sticky="ew", pady=(9, 0))
+        name_row.columnconfigure(0, weight=1)
+        self.output_name_label = ttk.Label(
+            name_row, text="File name", style="CardText.TLabel"
+        )
+        self.output_name_label.grid(row=0, column=0, sticky="w")
+        self.output_name_hint = ttk.Label(
+            name_row,
+            text=".pdf and processing labels are added automatically",
+            style="CardHint.TLabel",
+        )
+        self.output_name_hint.grid(row=0, column=1, sticky="e")
+        self.output_base_entry = tk.Entry(
+            name_row,
+            textvariable=self.output_base_var,
+            background=DISPLAY_BACKGROUND,
+            disabledbackground=DISPLAY_BACKGROUND,
+            foreground="#27364a",
+            disabledforeground=WORKFLOW_MUTED,
+            relief="solid",
+            borderwidth=1,
+            highlightthickness=0,
+        )
+        self.output_base_entry.grid(
+            row=1, column=0, columnspan=2, sticky="ew", pady=(4, 0)
         )
         self.output_base_entry.bind("<KeyRelease>", self._on_output_base_key)
         self.output_base_entry.bind("<FocusOut>", self._on_output_base_focus_out)
 
-        ttk.Label(group, text="Output preview:").grid(row=2, column=0, sticky="nw", pady=(8, 0))
-        preview_holder = ttk.Frame(group)
-        preview_holder.grid(row=2, column=1, columnspan=2, sticky="ew", padx=(8, 0), pady=(8, 0))
+        ttk.Label(group, text="Output preview", style="CardText.TLabel").grid(
+            row=3, column=0, sticky="w", pady=(10, 0)
+        )
+        preview_holder = ttk.Frame(group, style="Workflow.TFrame")
+        preview_holder.grid(row=4, column=0, sticky="nsew", pady=(4, 0))
+        preview_holder.columnconfigure(0, weight=1)
         self.output_preview = tk.Listbox(
             preview_holder,
-            height=3,
+            height=5,
             activestyle="none",
             exportselection=False,
+            background=DISPLAY_BACKGROUND,
+            foreground="#27364a",
+            relief="solid",
+            borderwidth=1,
+            highlightthickness=0,
         )
         preview_scroll = ttk.Scrollbar(
             preview_holder, orient="vertical", command=self.output_preview.yview
         )
         self.output_preview.configure(yscrollcommand=preview_scroll.set)
-        self.output_preview.pack(side="left", fill="both", expand=True)
-        preview_scroll.pack(side="right", fill="y")
+        self.output_preview.grid(row=0, column=0, sticky="nsew")
+        preview_scroll.grid(row=0, column=1, sticky="ns")
 
     def _build_progress_group(self) -> None:
-        self.progress_heading = ttk.Frame(self.main_content)
-        self.progress_heading_label = ttk.Label(
-            self.progress_heading, text="Progress", style="SectionHeading.TLabel"
+        shared_row = ttk.Frame(self.workflow_frame, style="Workflow.TFrame")
+        shared_row.grid(
+            row=1, column=0, columnspan=3, sticky="nsew", pady=(10, 0)
         )
-        self.progress_heading_label.pack(side="left")
-        self.readiness_frame = ttk.Frame(self.progress_heading)
-        self.readiness_frame.pack(side="left", padx=(8, 0))
+        shared_row.columnconfigure(0, weight=1, uniform="review_process")
+        shared_row.columnconfigure(1, weight=1, uniform="review_process")
+        shared_row.rowconfigure(0, weight=1)
+        self.review_process_row = shared_row
+
+        review_group = self._workflow_card(shared_row)
+        review_group.grid(row=0, column=0, sticky="nsew", padx=(0, 5))
+        review_group.columnconfigure(0, weight=1)
+        self.review_group = review_group
+        (
+            self.review_heading,
+            badge,
+            oval_id,
+            text_id,
+            self.review_heading_label,
+        ) = self._make_step_header(review_group, 4, "Review the job")
+        self.review_heading.grid(row=0, column=0, sticky="ew")
+        self.review_step_badge = badge
+        self.review_step_text = text_id
+        self._register_step("review", review_group, badge, oval_id, text_id)
+
+        review = ttk.Frame(review_group, style="Workflow.TFrame")
+        review.grid(row=1, column=0, sticky="ew", pady=(9, 2))
+        review.columnconfigure(1, weight=1)
+        ttk.Label(review, text="Action", style="ReviewKey.TLabel").grid(
+            row=0, column=0, sticky="nw", padx=(0, 12)
+        )
+        ttk.Label(
+            review,
+            textvariable=self.review_action_var,
+            style="ReviewValue.TLabel",
+            wraplength=430,
+            justify="left",
+        ).grid(row=0, column=1, sticky="w")
+        ttk.Label(review, text="Processing", style="ReviewKey.TLabel").grid(
+            row=1, column=0, sticky="nw", padx=(0, 12), pady=(5, 0)
+        )
+        ttk.Label(
+            review,
+            textvariable=self.review_processing_var,
+            style="ReviewValue.TLabel",
+            wraplength=430,
+            justify="left",
+        ).grid(row=1, column=1, sticky="w", pady=(5, 0))
+        ttk.Label(review, text="Output", style="ReviewKey.TLabel").grid(
+            row=2, column=0, sticky="nw", padx=(0, 12), pady=(5, 0)
+        )
+        ttk.Label(
+            review,
+            textvariable=self.review_output_var,
+            style="ReviewValue.TLabel",
+            wraplength=430,
+            justify="left",
+        ).grid(row=2, column=1, sticky="w", pady=(5, 0))
+
+        group = self._workflow_card(shared_row)
+        group.grid(row=0, column=1, sticky="nsew", padx=(5, 0))
+        group.columnconfigure(0, weight=1)
+        self.progress_group = group
+        (
+            self.progress_heading,
+            badge,
+            oval_id,
+            text_id,
+            self.progress_heading_label,
+        ) = self._make_step_header(group, 5, "Process the PDFs")
+        self.progress_heading.grid(row=0, column=0, sticky="ew")
+        self.progress_step_badge = badge
+        self.progress_step_text = text_id
+        self._register_step("process", group, badge, oval_id, text_id)
+
+        self.stage_label = ttk.Label(
+            group,
+            textvariable=self.stage_var,
+            style="CardText.TLabel",
+            wraplength=430,
+            justify="left",
+        )
+        self.stage_label.grid(row=1, column=0, sticky="w", pady=(9, 0))
+        self.progress_bar = ttk.Progressbar(
+            group, variable=self.progress_var, maximum=100, mode="determinate"
+        )
+        self.progress_bar.grid(row=2, column=0, sticky="ew", pady=(4, 6))
+
+        self.file_progress_label = ttk.Label(
+            group,
+            textvariable=self.file_progress_text_var,
+            style="Hint.TLabel",
+            wraplength=430,
+            justify="left",
+        )
+        self.file_progress_label.grid(row=3, column=0, sticky="w")
+        self.file_progress_bar = ttk.Progressbar(
+            group, variable=self.file_progress_var, maximum=100, mode="determinate"
+        )
+        self.file_progress_bar.grid(row=4, column=0, sticky="ew", pady=(3, 8))
+
+        ttk.Label(group, text="Status", style="CardText.TLabel").grid(
+            row=5, column=0, sticky="w"
+        )
+        self.status_holder = ttk.Frame(group, style="Workflow.TFrame")
+        self.status_holder.grid(row=6, column=0, sticky="ew", pady=(3, 7))
+        self.status_holder.columnconfigure(0, weight=1)
+        self.status_area = tk.Text(
+            self.status_holder,
+            height=3,
+            width=1,
+            wrap="word",
+            state="disabled",
+            takefocus=True,
+            background=DISPLAY_BACKGROUND,
+            foreground="#27364a",
+            relief="solid",
+            borderwidth=1,
+            highlightthickness=0,
+        )
+        self.status_scrollbar = ttk.Scrollbar(
+            self.status_holder, orient="vertical", command=self.status_area.yview
+        )
+        self.status_area.configure(yscrollcommand=self.status_scrollbar.set)
+        self.status_area.grid(row=0, column=0, sticky="nsew")
+        self.status_scrollbar.grid(row=0, column=1, sticky="ns")
+        ttk.Label(group, text="Needs attention", style="Danger.TLabel").grid(
+            row=7, column=0, sticky="w"
+        )
+        self.error_holder = ttk.Frame(group, style="Workflow.TFrame")
+        self.error_holder.grid(row=8, column=0, sticky="ew", pady=(3, 0))
+        self.error_holder.columnconfigure(0, weight=1)
+        self.error_area = tk.Text(
+            self.error_holder,
+            height=2,
+            width=1,
+            wrap="word",
+            state="disabled",
+            takefocus=True,
+            foreground="#8b1a1a",
+            background=DISPLAY_BACKGROUND,
+            relief="solid",
+            borderwidth=1,
+            highlightthickness=0,
+        )
+        self.error_scrollbar = ttk.Scrollbar(
+            self.error_holder, orient="vertical", command=self.error_area.yview
+        )
+        self.error_area.configure(yscrollcommand=self.error_scrollbar.set)
+        self.error_area.grid(row=0, column=0, sticky="nsew")
+        self.error_scrollbar.grid(row=0, column=1, sticky="ns")
+        for text_widget in (self.status_area, self.error_area):
+            text_widget.bind(
+                "<Control-a>",
+                lambda _event, widget=text_widget: self._select_all_readonly_text(widget),
+            )
+            text_widget.bind(
+                "<Control-A>",
+                lambda _event, widget=text_widget: self._select_all_readonly_text(widget),
+            )
+
+    def _build_action_bar(self, parent: ttk.Frame) -> None:
+        separator = ttk.Separator(parent, orient="horizontal")
+        separator.grid(row=3, column=0, sticky="ew")
+        actions = tk.Frame(parent, background="#ffffff", padx=16, pady=10)
+        actions.grid(row=4, column=0, sticky="ew")
+        actions.columnconfigure(1, weight=1)
+        self.action_bar = actions
+
+        self.readiness_frame = tk.Frame(actions, background="#ffffff")
+        self.readiness_frame.grid(row=0, column=0, sticky="w")
         self.readiness_canvas = tk.Canvas(
             self.readiness_frame,
             width=21,
             height=21,
             highlightthickness=0,
             borderwidth=0,
-            background=self.cget("background"),
+            background="#ffffff",
         )
         self.readiness_indicator = self.readiness_canvas.create_oval(
             2, 2, 19, 19, fill="#e6395b", outline="#000000", width=2
         )
         self.readiness_canvas.pack(side="left")
-        self.readiness_label = ttk.Label(
-            self.readiness_frame, textvariable=self.readiness_text_var
+        self.readiness_label = tk.Label(
+            self.readiness_frame,
+            textvariable=self.readiness_text_var,
+            background="#ffffff",
+            foreground="#263445",
+            font=("Segoe UI", 9, "bold"),
         )
-        self.readiness_label.pack(side="left", padx=(4, 0))
-        group = ttk.LabelFrame(
-            self.main_content,
-            labelwidget=self.progress_heading,
-            style="Section.TLabelframe",
-        )
-        group.pack(fill="both", expand=True, pady=5)
-        group.columnconfigure(0, weight=1)
-        self.progress_group = group
+        self.readiness_label.pack(side="left", padx=(5, 0))
+        tk.Label(
+            self.readiness_frame,
+            textvariable=self.stage_var,
+            background="#ffffff",
+            foreground=WORKFLOW_MUTED,
+            font=("Segoe UI", 9),
+        ).pack(side="left", padx=(10, 0))
 
-        self.stage_label = ttk.Label(group, textvariable=self.stage_var)
-        self.stage_label.grid(row=0, column=0, sticky="w")
-        self.progress_bar = ttk.Progressbar(
-            group, variable=self.progress_var, maximum=100, mode="determinate"
+        button_row = tk.Frame(actions, background="#ffffff")
+        button_row.grid(row=0, column=2, sticky="e")
+        self.open_destination_button = _SegmentButton(
+            button_row,
+            text="Open output folder",
+            command=self._open_destination_folder,
         )
-        self.progress_bar.grid(row=1, column=0, sticky="ew", pady=(4, 6))
-
-        self.file_progress_label = ttk.Label(
-            group, textvariable=self.file_progress_text_var, style="Hint.TLabel"
+        self.open_destination_button.pack(side="left", padx=(0, 6))
+        self.open_completed_button = _SegmentButton(
+            button_row,
+            text="Open completed file",
+            command=self._open_completed_file,
         )
-        self.file_progress_label.grid(row=2, column=0, sticky="w")
-        self.file_progress_bar = ttk.Progressbar(
-            group, variable=self.file_progress_var, maximum=100, mode="determinate"
+        self.open_completed_button.pack(side="left", padx=(0, 6))
+        self.cancel_button = _SegmentButton(
+            button_row,
+            text="Cancel",
+            command=self._cancel_process,
         )
-        self.file_progress_bar.grid(row=3, column=0, sticky="ew", pady=(3, 8))
-
-        ttk.Label(group, text="Status:").grid(row=4, column=0, sticky="w")
-        self.status_area = tk.Text(
-            group,
-            height=4,
-            wrap="word",
-            state="disabled",
-            background="#f7f8fa",
-            relief="solid",
-            borderwidth=1,
+        self.cancel_button.pack(side="left", padx=(0, 6))
+        self.clear_job_button = _SegmentButton(
+            button_row,
+            text="Clear job",
+            command=self._clear_job,
         )
-        self.status_area.grid(row=5, column=0, sticky="ew", pady=(3, 7))
-        ttk.Label(group, text="Errors:", style="Danger.TLabel").grid(
-            row=6, column=0, sticky="w"
-        )
-        self.error_area = tk.Text(
-            group,
-            height=3,
-            wrap="word",
-            state="disabled",
-            foreground="#8b1a1a",
-            background="#fff5f5",
-            relief="solid",
-            borderwidth=1,
-        )
-        self.error_area.grid(row=7, column=0, sticky="ew", pady=(3, 8))
-
-        actions = ttk.Frame(group)
-        actions.grid(row=8, column=0, sticky="ew")
+        self.clear_job_button.pack(side="left", padx=(0, 8))
         self.process_button = tk.Button(
-            actions,
+            button_row,
             text="Process",
             command=self._start_process,
             state="disabled",
             background=PROCESS_DISABLED_BG,
             foreground=PROCESS_DISABLED_FG,
             disabledforeground=PROCESS_DISABLED_FG,
-            activebackground=PROCESS_ENABLED_BG,
+            activebackground=PRIMARY_BLUE_DARK,
             activeforeground=PROCESS_ENABLED_FG,
-            font=("Segoe UI", 9, "bold"),
-            relief="raised",
+            font=SEGMENT_FONT,
+            relief="solid",
+            overrelief="solid",
             borderwidth=1,
-            padx=12,
-            pady=3,
+            highlightthickness=0,
+            padx=SEGMENT_PADX,
+            pady=SEGMENT_PADY,
+            cursor="hand2",
+            takefocus=True,
         )
         self.process_button.pack(side="left")
-        self.cancel_button = ttk.Button(actions, text="Cancel", command=self._cancel_process)
-        self.cancel_button.pack(side="left", padx=7)
-        self.open_destination_button = ttk.Button(
-            actions,
-            text="Open destination folder",
-            command=self._open_destination_folder,
-        )
-        self.open_destination_button.pack(side="right")
-        self.open_completed_button = ttk.Button(
-            actions, text="Open completed file", command=self._open_completed_file
-        )
-        self.open_completed_button.pack(side="right", padx=7)
 
     # ---------------------------------------------------------- view utilities
+    def _load_brand_photo(
+        self, filename: str, max_size: tuple[int, int]
+    ) -> ImageTk.PhotoImage | None:
+        """Load and downsample a transparent brand bitmap without distortion."""
+
+        path = _resource_path(filename)
+        if path is None:
+            return None
+        try:
+            with Image.open(path) as source:
+                source.load()
+                image = source.convert("RGBA")
+            image.thumbnail(max_size, Image.Resampling.LANCZOS)
+            if image.width <= 0 or image.height <= 0:
+                return None
+            return ImageTk.PhotoImage(image, master=self)
+        except (OSError, ValueError, tk.TclError):
+            return None
+
     def _set_icon(self) -> None:
-        icon = _resource_path("PROS.ico") or _resource_path("assets/PROS.ico")
+        # Prefer the canonical bundled brand asset. A loose top-level icon is
+        # retained only as a compatibility fallback for older portable folders.
+        icon = _resource_path("assets/PROS.ico") or _resource_path("PROS.ico")
         if icon:
             try:
                 self.iconbitmap(default=str(icon))
@@ -698,13 +1375,256 @@ class ProsApp(tk.Tk):
         self.main_canvas.configure(scrollregion=self.main_canvas.bbox("all"))
 
     def _on_canvas_configure(self, event: tk.Event[Any]) -> None:
-        self.main_canvas.itemconfigure(self._canvas_window, width=event.width)
-        if hasattr(self, "tagline_label"):
-            self.tagline_label.configure(wraplength=max(320, event.width - 135))
+        # The mockup has two substantial work columns. At narrower Windows
+        # sizes preserve usable controls and expose the horizontal scrollbar
+        # instead of clipping labels, entries, or actions.
+        content_width = max(1120, event.width)
+        self.main_canvas.itemconfigure(self._canvas_window, width=content_width)
+        self._set_horizontal_scrollbar_visible(1 < event.width < 1120)
 
-    def _on_mouse_wheel(self, event: tk.Event[Any]) -> None:
-        if self.winfo_containing(event.x_root, event.y_root) is not None:
-            self.main_canvas.yview_scroll(int(-event.delta / 120), "units")
+    def _set_horizontal_scrollbar_visible(self, visible: bool) -> None:
+        if visible:
+            self.main_horizontal_scrollbar.grid()
+        else:
+            self.main_horizontal_scrollbar.grid_remove()
+            self.main_canvas.xview_moveto(0)
+
+    @staticmethod
+    def _is_widget_descendant(widget: tk.Widget, ancestor: tk.Widget) -> bool:
+        current: tk.Widget | None = widget
+        while current is not None:
+            if current is ancestor:
+                return True
+            current = getattr(current, "master", None)
+        return False
+
+    def _on_descendant_focus_in(self, event: tk.Event[Any]) -> None:
+        widget = getattr(event, "widget", None)
+        if not isinstance(widget, tk.Widget) or not self._is_widget_descendant(
+            widget, self.main_content
+        ):
+            return
+        if self._focus_reveal_after is not None:
+            try:
+                self.after_cancel(self._focus_reveal_after)
+            except tk.TclError:
+                pass
+        self._focus_reveal_after = self.after_idle(
+            lambda target=widget: self._reveal_focused_widget(target)
+        )
+
+    def _reveal_focused_widget(self, widget: tk.Widget) -> None:
+        self._focus_reveal_after = None
+        try:
+            if not widget.winfo_exists() or not widget.winfo_ismapped():
+                return
+            self.update_idletasks()
+            region = self.main_canvas.bbox("all")
+            if region is None:
+                return
+            content_x = widget.winfo_rootx() - self.main_content.winfo_rootx()
+            content_y = widget.winfo_rooty() - self.main_content.winfo_rooty()
+            width = max(1, widget.winfo_width())
+            height = max(1, widget.winfo_height())
+            viewport_width = max(1, self.main_canvas.winfo_width())
+            viewport_height = max(1, self.main_canvas.winfo_height())
+            visible_left = self.main_canvas.canvasx(0)
+            visible_top = self.main_canvas.canvasy(0)
+            margin = 12
+
+            target_left = visible_left
+            if content_x < visible_left + margin:
+                target_left = max(0, content_x - margin)
+            elif content_x + width > visible_left + viewport_width - margin:
+                target_left = content_x + width - viewport_width + margin
+            target_top = visible_top
+            if content_y < visible_top + margin:
+                target_top = max(0, content_y - margin)
+            elif content_y + height > visible_top + viewport_height - margin:
+                target_top = content_y + height - viewport_height + margin
+
+            region_width = max(1, region[2] - region[0])
+            region_height = max(1, region[3] - region[1])
+            if target_left != visible_left and region_width > viewport_width:
+                self.main_canvas.xview_moveto(target_left / region_width)
+            if target_top != visible_top and region_height > viewport_height:
+                self.main_canvas.yview_moveto(target_top / region_height)
+        except tk.TclError:
+            return
+
+    def _has_independent_scroll_ancestor(self, widget: tk.Widget) -> bool:
+        current: tk.Widget | None = widget
+        while current is not None and current is not self.main_canvas:
+            if isinstance(current, (tk.Listbox, tk.Text, ttk.Treeview, ttk.Scrollbar)):
+                return True
+            current = getattr(current, "master", None)
+        return False
+
+    def _on_mouse_wheel(self, event: tk.Event[Any]) -> str | None:
+        target = self.winfo_containing(event.x_root, event.y_root)
+        if target is None or not self._is_widget_descendant(target, self.main_canvas):
+            return None
+        if self._has_independent_scroll_ancestor(target):
+            # The widget's class binding has already handled the wheel event;
+            # do not also move the outer workflow page.
+            return "break"
+        self.main_canvas.yview_scroll(int(-event.delta / 120), "units")
+        return "break"
+
+    def _style_mode_buttons(self) -> None:
+        selected = self.mode_var.get()
+        for button in getattr(self, "mode_buttons", ()):
+            is_selected = str(button.cget("value")) == selected
+            is_disabled = str(button.cget("state")) == "disabled"
+            if is_disabled:
+                background = SEGMENT_DISABLED_BACKGROUND
+                foreground = SEGMENT_DISABLED_FOREGROUND
+            elif is_selected:
+                background = PRIMARY_BLUE
+                foreground = "#ffffff"
+            else:
+                background = SEGMENT_BACKGROUND
+                foreground = SEGMENT_FOREGROUND
+            button.configure(
+                background=background,
+                foreground=foreground,
+                activebackground=(
+                    PRIMARY_BLUE_DARK if is_selected else SEGMENT_ACTIVE_BACKGROUND
+                ),
+                activeforeground=(
+                    "#ffffff" if is_selected else SEGMENT_FOREGROUND
+                ),
+                selectcolor=background,
+            )
+
+    def _dnd_guard(self) -> bool:
+        return bool(
+            self._dnd_available
+            and self._phase in {"editing", "failed", "succeeded"}
+            and len(self._inputs) < self._input_limit()
+        )
+
+    def _drop_has_pdf_candidate(self, paths: Sequence[str]) -> bool:
+        """Cheap OLE acknowledgement filter; authoritative checks run later."""
+
+        if not self._dnd_guard():
+            return False
+        existing = {_canonical_path(row.path) for row in self._inputs}
+        seen: set[str] = set()
+        for raw in paths:
+            path = Path(raw)
+            if path.suffix.casefold() != ".pdf":
+                continue
+            key = _canonical_path(path)
+            if key in existing or key in seen:
+                continue
+            seen.add(key)
+            return True
+        return False
+
+    def _setup_drag_drop(self) -> None:
+        """Enable Explorer PDF drops while retaining the picker fallback."""
+
+        self._dnd_available = False
+        self._dnd_widgets.clear()
+        try:
+            TkinterDnD.require(self)
+            for widget in (self.drop_zone, self.input_tree):
+                widget.drop_target_register(DND_FILES)  # type: ignore[attr-defined]
+                widget.dnd_bind("<<DropEnter>>", self._on_dnd_enter)  # type: ignore[attr-defined]
+                widget.dnd_bind("<<DropPosition>>", self._on_dnd_position)  # type: ignore[attr-defined]
+                widget.dnd_bind("<<DropLeave>>", self._on_dnd_leave)  # type: ignore[attr-defined]
+                widget.dnd_bind("<<Drop>>", self._on_dnd_drop)  # type: ignore[attr-defined]
+                self._dnd_widgets.append(widget)
+        except (AttributeError, RuntimeError, tk.TclError):
+            for widget in self._dnd_widgets:
+                try:
+                    widget.drop_target_unregister()  # type: ignore[attr-defined]
+                except (AttributeError, tk.TclError):
+                    pass
+            self._dnd_widgets.clear()
+            self._dnd_available = False
+        else:
+            self._dnd_available = True
+        self._refresh_drop_zone()
+
+    def _teardown_drag_drop(self) -> None:
+        for widget in self._dnd_widgets:
+            try:
+                widget.drop_target_unregister()  # type: ignore[attr-defined]
+            except (AttributeError, tk.TclError):
+                pass
+        self._dnd_widgets.clear()
+        self._dnd_available = False
+
+    def _set_drop_hover(self, active: bool) -> None:
+        try:
+            if active:
+                self.drop_zone.configure(background=DROP_ZONE_ACTIVE_BG)
+            else:
+                self._refresh_drop_zone()
+        except tk.TclError:
+            pass
+
+    def _on_dnd_enter(self, _event: object) -> str:
+        allowed = self._dnd_guard()
+        self._set_drop_hover(allowed)
+        return COPY if allowed else REFUSE_DROP
+
+    def _on_dnd_position(self, _event: object) -> str:
+        return COPY if self._dnd_guard() else REFUSE_DROP
+
+    def _on_dnd_leave(self, _event: object) -> None:
+        self._set_drop_hover(False)
+
+    def _on_dnd_drop(self, event: object) -> str:
+        accepted = False
+        paths: tuple[str, ...] = ()
+        try:
+            if not self._dnd_guard():
+                return REFUSE_DROP
+            data = getattr(event, "data", "")
+            paths = tuple(str(value) for value in self.tk.splitlist(data))
+            accepted = self._drop_has_pdf_candidate(paths)
+        except (AttributeError, tk.TclError):
+            accepted = False
+        finally:
+            self._set_drop_hover(False)
+        if not accepted:
+            return REFUSE_DROP
+        self.after_idle(
+            lambda values=paths: self._ingest_pdf_paths(values, origin="drop")
+        )
+        return COPY
+
+    def _refresh_drop_zone(self) -> None:
+        if not hasattr(self, "drop_zone"):
+            return
+        if self._phase not in {"editing", "failed", "succeeded"}:
+            text = "The PDF list is locked while this job is running"
+            background = DROP_ZONE_DISABLED_BG
+        else:
+            limit = self._input_limit()
+            if len(self._inputs) >= limit:
+                text = (
+                    "One PDF is already selected"
+                    if limit == 1
+                    else f"The {limit}-PDF limit has been reached"
+                )
+            elif self._dnd_available:
+                text = (
+                    "Drag one PDF here, or click to browse"
+                    if limit == 1
+                    else "Drag PDF files here, or click to browse"
+                )
+            else:
+                text = "Click to add one PDF" if limit == 1 else "Click to add PDF files"
+            background = DROP_ZONE_BG
+        self.drop_zone_text_var.set(text)
+        try:
+            self.drop_zone.configure(background=background)
+        except tk.TclError:
+            pass
 
     @staticmethod
     def _set_widget_enabled(widget: tk.Widget, enabled: bool) -> None:
@@ -727,13 +1647,23 @@ class ProsApp(tk.Tk):
             background=PROCESS_ENABLED_BG if enabled else PROCESS_DISABLED_BG,
             foreground=PROCESS_ENABLED_FG if enabled else PROCESS_DISABLED_FG,
             disabledforeground=PROCESS_DISABLED_FG,
+            activebackground=PRIMARY_BLUE_DARK,
+            activeforeground=PROCESS_ENABLED_FG,
         )
+
+    @staticmethod
+    def _select_all_readonly_text(widget: tk.Text) -> str:
+        widget.tag_add("sel", "1.0", "end-1c")
+        widget.mark_set("insert", "1.0")
+        widget.see("1.0")
+        return "break"
 
     def _replace_text(self, widget: tk.Text, value: str) -> None:
         widget.configure(state="normal")
         widget.delete("1.0", "end")
         if value:
             widget.insert("1.0", value)
+        widget.yview_moveto(0)
         widget.configure(state="disabled")
         if widget is getattr(self, "status_area", None):
             self._last_status_line = value.splitlines()[-1] if value else ""
@@ -842,7 +1772,11 @@ class ProsApp(tk.Tk):
             return StructureMode.NEITHER
 
     def _input_limit(self) -> int:
-        return MAX_JOIN_INPUTS if self._mode() is StructureMode.JOIN else 1
+        if self._mode() is StructureMode.SPLIT:
+            return 1
+        if self._mode() is StructureMode.NEITHER:
+            return MAX_SEPARATE_INPUTS
+        return MAX_JOIN_INPUTS
 
     def _add_pdfs(self) -> None:
         if self._phase not in {"editing", "failed", "succeeded"}:
@@ -851,20 +1785,32 @@ class ProsApp(tk.Tk):
         remaining = limit - len(self._inputs)
         if remaining <= 0:
             return
+        multiple = self._mode() is not StructureMode.SPLIT
         options = {
-            "title": "Select PDF files" if self._mode() is StructureMode.JOIN else "Select a PDF file",
+            "title": "Select PDF files" if multiple else "Select a PDF file",
             "initialdir": str(self.input_dir),
             "filetypes": (("PDF files", "*.pdf"),),
         }
-        if self._mode() is StructureMode.JOIN:
+        if multiple:
             selected: Sequence[str] = filedialog.askopenfilenames(parent=self, **options)
         else:
             one = filedialog.askopenfilename(parent=self, **options)
             selected = (one,) if one else ()
         if not selected:
             return
-        self._mark_draft_edited()
+        self._ingest_pdf_paths(selected, origin="picker")
 
+    def _ingest_pdf_paths(
+        self, selected: Sequence[str | os.PathLike[str]], *, origin: str
+    ) -> int:
+        """Validate and append picker/drop paths once, preserving source order."""
+
+        if self._phase not in {"editing", "failed", "succeeded"}:
+            return 0
+        limit = self._input_limit()
+        remaining = limit - len(self._inputs)
+        if remaining <= 0:
+            return 0
         existing = {_canonical_path(row.path) for row in self._inputs}
         accepted: list[Path] = []
         rejected: list[str] = []
@@ -872,6 +1818,9 @@ class ProsApp(tk.Tk):
             path = Path(raw)
             if path.suffix.casefold() != ".pdf":
                 rejected.append(f"{path.name}: only .pdf files are accepted.")
+                continue
+            if not path.is_file():
+                rejected.append(f"{path.name}: this file is not available.")
                 continue
             key = _canonical_path(path)
             if key in existing or any(_canonical_path(item) == key for item in accepted):
@@ -882,6 +1831,8 @@ class ProsApp(tk.Tk):
                 continue
             accepted.append(path)
 
+        if accepted:
+            self._mark_draft_edited()
         for path in accepted:
             self._inputs.append(_InputRow(path=path))
         if accepted:
@@ -895,6 +1846,7 @@ class ProsApp(tk.Tk):
         self._refresh_inputs()
         self._refresh_output_preview()
         self._refresh_state()
+        return len(accepted)
 
     def _selected_input_index(self) -> int | None:
         selected = self.input_tree.selection()
@@ -940,6 +1892,103 @@ class ProsApp(tk.Tk):
         self._refresh_output_preview()
         self._refresh_state()
 
+    def _clear_job(self) -> None:
+        """Reset the editable workflow without touching any source/output PDF."""
+
+        if self._phase in {"preflighting", "processing", "cancelling"}:
+            return
+        has_draft = bool(
+            self._inputs
+            or self.remove_password_var.get()
+            or self.compress_var.get()
+            or self.grayscale_var.get()
+            or self._mode() is not StructureMode.NEITHER
+            or self.output_base_var.get().strip()
+            or self._last_outputs
+        )
+        if has_draft and not messagebox.askyesno(
+            "Clear job",
+            "Clear every selection and start a new job?\n\n"
+            "Source PDFs and completed output files will not be deleted.",
+            parent=self,
+        ):
+            return
+
+        if self._inspection_after is not None:
+            try:
+                self.after_cancel(self._inspection_after)
+            except tk.TclError:
+                pass
+            self._inspection_after = None
+        self._inspection_generation += 1
+        self._clear_passwords()
+        self._inputs.clear()
+        self._selected_input_uid = None
+        self._base_user_edited = False
+        self.input_dir = self.app_dir
+        self.input_folder_var.set(str(self.input_dir))
+        self.output_folder_var.set(str(self.app_dir))
+        self._set_output_base("")
+        self.remove_password_var.set(False)
+        self.compress_var.set(False)
+        self.grayscale_var.set(False)
+        self.mode_var.set(StructureMode.NEITHER.value)
+        self._mode_confirmed = False
+        self._confirmed_mode = None
+        self._last_mode_click_value = ""
+        self._last_mode_click_at = 0.0
+        self.use_common_password_var.set(False)
+        self.show_password_var.set(False)
+        self._toggle_password_visibility()
+
+        while len(self._split_rows) > 1:
+            row = self._split_rows.pop()
+            if row.validate_after:
+                try:
+                    self.after_cancel(row.validate_after)
+                except tk.TclError:
+                    pass
+            if row.clear_after:
+                try:
+                    self.after_cancel(row.clear_after)
+                except tk.TclError:
+                    pass
+            row.frame.destroy()
+        if self._split_rows:
+            row = self._split_rows[0]
+            for after_id in (row.validate_after, row.clear_after):
+                if after_id:
+                    try:
+                        self.after_cancel(after_id)
+                    except tk.TclError:
+                        pass
+            row.validate_after = None
+            row.clear_after = None
+            row.variable.set("")
+            row.entry.configure(background=SPLIT_NORMAL_BG)
+        self._selected_split_index = 0
+        self.split_selected_var.set(0)
+
+        self._phase = "editing"
+        self._runtime_error = ""
+        self._last_outputs = ()
+        self._last_destination = None
+        self._active_request = None
+        self._active_job_id = None
+        self.progress_var.set(0)
+        self.file_progress_var.set(0)
+        self.file_progress_text_var.set("No file is being processed.")
+        self.stage_var.set("Ready")
+        self._reset_synthetic_progress()
+        self._replace_text(
+            self.status_area, "Job cleared. Source and completed PDF files were not changed."
+        )
+        self._refresh_mode_panel()
+        self._refresh_inputs()
+        self._refresh_ranges()
+        self._refresh_output_preview()
+        self._refresh_state()
+
     def _move_input(self, delta: int) -> None:
         if self._mode() is not StructureMode.JOIN:
             return
@@ -954,6 +2003,70 @@ class ProsApp(tk.Tk):
         self._inputs.insert(target, row)
         self._refresh_auto_base()
         self._refresh_inputs(select_uid=row.uid)
+        self._refresh_output_preview()
+        self._refresh_state()
+
+    def _on_tree_drag_start(self, event: tk.Event[Any]) -> None:
+        self._tree_drag_uid = None
+        self._tree_drag_changed = False
+        self._tree_drag_start_y = None
+        if (
+            self._mode() is not StructureMode.JOIN
+            or self._phase not in {"editing", "failed", "succeeded"}
+        ):
+            return
+        if (
+            self.input_tree.identify_region(event.x, event.y) != "cell"
+            or self.input_tree.identify_column(event.x) != "#1"
+        ):
+            return
+        uid = self.input_tree.identify_row(event.y)
+        if uid and self.input_tree.exists(uid):
+            self._tree_drag_uid = uid
+            self._tree_drag_start_y = event.y
+            self.input_tree.selection_set(uid)
+            self._selected_input_uid = uid
+
+    def _on_tree_drag_motion(self, event: tk.Event[Any]) -> None:
+        uid = self._tree_drag_uid
+        if (
+            not uid
+            or self._mode() is not StructureMode.JOIN
+            or self._tree_drag_start_y is None
+            or abs(event.y - self._tree_drag_start_y) < 6
+        ):
+            return
+        target_uid = self.input_tree.identify_row(event.y)
+        if not target_uid or target_uid == uid:
+            return
+        current = next(
+            (index for index, row in enumerate(self._inputs) if row.uid == uid), None
+        )
+        target = next(
+            (index for index, row in enumerate(self._inputs) if row.uid == target_uid),
+            None,
+        )
+        if current is None or target is None:
+            return
+        row = self._inputs.pop(current)
+        self._inputs.insert(target, row)
+        self.input_tree.move(uid, "", target)
+        for order, input_row in enumerate(self._inputs, start=1):
+            if self.input_tree.exists(input_row.uid):
+                self.input_tree.set(input_row.uid, "order", order)
+        self._tree_drag_changed = True
+
+    def _on_tree_drag_end(self, _event: tk.Event[Any]) -> None:
+        uid = self._tree_drag_uid
+        changed = self._tree_drag_changed
+        self._tree_drag_uid = None
+        self._tree_drag_changed = False
+        self._tree_drag_start_y = None
+        if not uid or not changed:
+            return
+        self._mark_draft_edited()
+        self._refresh_auto_base()
+        self._refresh_inputs(select_uid=uid)
         self._refresh_output_preview()
         self._refresh_state()
 
@@ -998,6 +2111,33 @@ class ProsApp(tk.Tk):
             self._selected_input_uid = first
         else:
             self._selected_input_uid = None
+        total_size = 0
+        total_pages = 0
+        pages_complete = bool(self._inputs)
+        for row in self._inputs:
+            if row.info is not None:
+                total_size += max(0, row.info.size_bytes)
+                if row.info.page_count is None:
+                    pages_complete = False
+                else:
+                    total_pages += row.info.page_count
+            else:
+                pages_complete = False
+                try:
+                    total_size += row.path.stat().st_size
+                except OSError:
+                    pass
+        if self._inputs:
+            noun = "PDF" if len(self._inputs) == 1 else "PDFs"
+            parts = [f"{len(self._inputs)} {noun}"]
+            if pages_complete:
+                parts.append(f"{total_pages} page{'s' if total_pages != 1 else ''}")
+            parts.append(_format_size(total_size))
+            self.input_summary_var.set(" · ".join(parts))
+        else:
+            self.input_summary_var.set("No PDFs selected")
+        self._refresh_output_name_controls()
+        self._refresh_drop_zone()
         self._load_selected_password()
 
     # --------------------------------------------------------------- passwords
@@ -1159,34 +2299,77 @@ class ProsApp(tk.Tk):
 
     # ---------------------------------------------------------- mode and split
     def _on_mode_changed(self) -> None:
+        selected = self._mode()
+        now = time.monotonic()
+        reopen_picker = bool(
+            self._mode_confirmed
+            and self._confirmed_mode is selected
+            and self._last_mode_click_value == selected.value
+            and 0 <= now - self._last_mode_click_at <= 4.0
+        )
+        self._mode_confirmed = True
+        self._confirmed_mode = selected
+        self._last_mode_click_value = selected.value
+        self._last_mode_click_at = now
         self._mark_draft_edited()
         self._runtime_error = ""
-        if self._mode() is StructureMode.SPLIT and not self._split_rows:
+        if selected is StructureMode.SPLIT and not self._split_rows:
             self._add_split_row(initial=True)
         self._refresh_mode_panel()
         self._refresh_auto_base()
         self._refresh_ranges()
         self._refresh_output_preview()
         self._refresh_state()
+        if reopen_picker:
+            self.after_idle(self._add_pdfs)
 
     def _refresh_mode_panel(self) -> None:
-        self.join_options.pack_forget()
-        self.split_options.pack_forget()
         mode = self._mode()
-        if mode is StructureMode.JOIN:
-            pack_options: dict[str, object] = {"fill": "x", "pady": 5}
-            if hasattr(self, "output_group"):
-                pack_options["before"] = self.output_group
-            self.options_group.pack(**pack_options)
-            self.join_options.pack(fill="x")
-        elif mode is StructureMode.SPLIT:
-            pack_options = {"fill": "x", "pady": 5}
-            if hasattr(self, "output_group"):
-                pack_options["before"] = self.output_group
-            self.options_group.pack(**pack_options)
-            self.split_options.pack(fill="both", expand=True)
+        self._style_mode_buttons()
+        if mode is StructureMode.SPLIT:
+            self.workflow_frame.columnconfigure(
+                0, weight=1, minsize=535, uniform="workflow"
+            )
+            self.workflow_frame.columnconfigure(
+                2, weight=1, minsize=535, uniform="workflow"
+            )
+            self.options_group.grid(row=0, column=0, sticky="nsew", pady=(0, 10))
+            self.output_group.grid(row=1, column=0, sticky="nsew", pady=(0, 10))
+            self._set_step_number(self.output_step_badge, self.output_step_text, 4)
+            self._set_step_number(self.review_step_badge, self.review_step_text, 5)
+            self._set_step_number(self.progress_step_badge, self.progress_step_text, 6)
         else:
-            self.options_group.pack_forget()
+            self.workflow_frame.columnconfigure(
+                0, weight=3, minsize=610, uniform="workflow"
+            )
+            self.workflow_frame.columnconfigure(
+                2, weight=2, minsize=420, uniform="workflow"
+            )
+            self.options_group.grid_remove()
+            self.output_group.grid(row=0, column=0, sticky="nsew", pady=(0, 10))
+            self._set_step_number(self.output_step_badge, self.output_step_text, 3)
+            self._set_step_number(self.review_step_badge, self.review_step_text, 4)
+            self._set_step_number(self.progress_step_badge, self.progress_step_text, 5)
+
+        self.review_process_row.grid(
+            row=1, column=0, columnspan=3, sticky="nsew", pady=(10, 0)
+        )
+
+        self.join_options.pack_forget()
+        if mode is StructureMode.JOIN:
+            self.join_options.pack(
+                side="left", padx=(0, 4), before=self.add_pdf_button
+            )
+            self.add_pdf_button.configure(text="+ Add PDFs")
+            self.input_step_label.configure(text="Add and arrange your PDF files")
+        elif mode is StructureMode.NEITHER:
+            self.add_pdf_button.configure(text="+ Add PDFs")
+            self.input_step_label.configure(text="Add your PDF files")
+        else:
+            self.add_pdf_button.configure(text="+ Add PDF")
+            self.input_step_label.configure(text="Add your PDF file")
+        self._refresh_output_name_controls()
+        self._refresh_drop_zone()
 
     def _add_split_row(self, initial: bool = False) -> None:
         if len(self._split_rows) >= MAX_SPLIT_OUTPUTS - 1:
@@ -1270,6 +2453,34 @@ class ProsApp(tk.Tk):
             self._split_rows.pop(index)
             self._selected_split_index = max(0, index - 1)
         self._reindex_split_rows()
+        self._refresh_ranges()
+        self._refresh_output_preview()
+        self._refresh_state()
+
+    def _clear_split_points(self) -> None:
+        """Return the Split step to one quiet blank row."""
+
+        if not self._split_rows:
+            self._add_split_row(initial=True)
+            return
+        self._mark_draft_edited()
+        for row in self._split_rows:
+            for after_id in (row.validate_after, row.clear_after):
+                if after_id:
+                    try:
+                        self.after_cancel(after_id)
+                    except tk.TclError:
+                        pass
+            row.validate_after = None
+            row.clear_after = None
+            row.entry.configure(background=SPLIT_NORMAL_BG)
+        while len(self._split_rows) > 1:
+            self._split_rows.pop().frame.destroy()
+        self._split_rows[0].variable.set("")
+        self._selected_split_index = 0
+        self.split_selected_var.set(0)
+        self._reindex_split_rows()
+        self._runtime_error = ""
         self._refresh_ranges()
         self._refresh_output_preview()
         self._refresh_state()
@@ -1477,6 +2688,23 @@ class ProsApp(tk.Tk):
             )
 
     # --------------------------------------------------------------- output UI
+    def _is_multi_separate(self) -> bool:
+        return self._mode() is StructureMode.NEITHER and len(self._inputs) > 1
+
+    def _refresh_output_name_controls(self) -> None:
+        if not hasattr(self, "output_name_label"):
+            return
+        if self._is_multi_separate():
+            self.output_name_label.configure(text="File names")
+            self.output_name_hint.configure(
+                text="Each source name and processing labels are used automatically"
+            )
+        else:
+            self.output_name_label.configure(text="File name")
+            self.output_name_hint.configure(
+                text=".pdf and processing labels are added automatically"
+            )
+
     def _set_output_base(self, value: str) -> None:
         self._setting_base = True
         try:
@@ -1505,6 +2733,21 @@ class ProsApp(tk.Tk):
             self._refresh_auto_base()
         else:
             self._set_output_base(normalized)
+        self._refresh_output_preview()
+        self._refresh_state()
+
+    def _choose_output_folder(self) -> None:
+        selected = filedialog.askdirectory(
+            parent=self,
+            title="Choose output folder",
+            initialdir=self.output_folder_var.get() or str(self.app_dir),
+            mustexist=True,
+        )
+        if not selected:
+            return
+        self._mark_draft_edited()
+        self.output_folder_var.set(str(Path(selected)))
+        self._runtime_error = ""
         self._refresh_output_preview()
         self._refresh_state()
 
@@ -1569,9 +2812,18 @@ class ProsApp(tk.Tk):
 
     def _refresh_output_preview(self) -> None:
         self.output_preview.delete(0, "end")
+        if self._mode() is StructureMode.SPLIT:
+            _points, point_errors = self._parsed_split_points()
+            if point_errors:
+                self.output_preview.insert(
+                    "end", "Complete valid split points to preview output files."
+                )
+                self._refresh_review()
+                return
         request = self._preview_request()
         if request is None:
             self.output_preview.insert("end", "Select an input PDF to calculate output names.")
+            self._refresh_review()
             return
         try:
             paths = build_output_paths(request)
@@ -1579,11 +2831,83 @@ class ProsApp(tk.Tk):
             paths = ()
         for path in paths:
             self.output_preview.insert("end", path.name)
+        self._refresh_review()
+
+    def _refresh_review(self) -> None:
+        if not hasattr(self, "review_action_var"):
+            return
+        mode = self._mode()
+        count = len(self._inputs)
+        if mode is StructureMode.JOIN:
+            action = (
+                f"Combine {count} PDFs into one PDF"
+                if count
+                else "Combine PDF files into one PDF"
+            )
+            cta = f"Combine {count} PDFs" if count else "Combine PDFs"
+        elif mode is StructureMode.SPLIT:
+            points, point_errors = self._parsed_split_points()
+            output_count = len(points) + 1 if points and not point_errors else 0
+            action = (
+                f"Split one PDF into {output_count} PDFs"
+                if output_count
+                else "Split one PDF into multiple PDFs"
+            )
+            cta = f"Create {output_count} PDFs" if output_count else "Create PDFs"
+        else:
+            if count > 1:
+                action = f"Process {count} PDFs and keep them as separate files"
+                cta = f"Create {count} PDFs"
+            else:
+                action = "Process one PDF and keep it as a separate file"
+                cta = "Create PDF"
+        self.review_action_var.set(action)
+
+        selected_options: list[str] = []
+        if self.remove_password_var.get():
+            selected_options.append("Remove password")
+        if self.compress_var.get():
+            selected_options.append("Reduce file size")
+        if self.grayscale_var.get():
+            selected_options.append("Convert to grayscale")
+        self.review_processing_var.set(
+            " · ".join(selected_options) if selected_options else "None selected"
+        )
+
+        preview_values = [
+            str(self.output_preview.get(index))
+            for index in range(self.output_preview.size())
+        ]
+        real_names = [value for value in preview_values if value.lower().endswith(".pdf")]
+        if len(real_names) == 1:
+            output = real_names[0]
+        elif len(real_names) > 1:
+            output = f"{len(real_names)} PDFs in {self.output_folder_var.get()}"
+        else:
+            split_incomplete = any(
+                value.startswith("Complete valid split points")
+                for value in preview_values
+            )
+            output = (
+                "Complete valid split points to preview output files"
+                if split_incomplete
+                else "Choose an input PDF to preview output"
+            )
+        self.review_output_var.set(output)
+
+        if hasattr(self, "process_button"):
+            self.process_button.configure(
+                text="Working…"
+                if self._phase in {"preflighting", "processing", "cancelling"}
+                else cta
+            )
 
     # ------------------------------------------------------------- validation
     def _blocking_errors(self) -> list[str]:
         errors: list[str] = []
         mode = self._mode()
+        if not self._mode_confirmed or self._confirmed_mode is not mode:
+            errors.append("Choose a file arrangement to confirm the first step.")
         if not (
             self.remove_password_var.get()
             or self.compress_var.get()
@@ -1599,9 +2923,9 @@ class ProsApp(tk.Tk):
         elif mode is StructureMode.SPLIT:
             if count != 1:
                 errors.append("Split requires exactly one input PDF.")
-        elif count != 1:
+        elif not 1 <= count <= MAX_SEPARATE_INPUTS:
             errors.append(
-                "Password removal, compression, or grayscale conversion without Join or Split requires one input PDF."
+                f"Keep separate requires between 1 and {MAX_SEPARATE_INPUTS} input PDFs."
             )
 
         for row in self._inputs:
@@ -1627,8 +2951,15 @@ class ProsApp(tk.Tk):
 
         request = self._preview_request()
         if request is not None:
-            raw_base = request.output_base or (request.input_paths[0].stem if request.input_paths else "")
-            errors.extend(validate_output_base(raw_base))
+            if mode is StructureMode.NEITHER and len(request.input_paths) > 1:
+                raw_bases = [path.stem for path in request.input_paths]
+            else:
+                raw_bases = [
+                    request.output_base
+                    or (request.input_paths[0].stem if request.input_paths else "")
+                ]
+            for raw_base in raw_bases:
+                errors.extend(validate_output_base(raw_base))
             output_dir = request.output_dir
             if not output_dir.exists():
                 errors.append("The selected output folder does not exist.")
@@ -1642,14 +2973,125 @@ class ProsApp(tk.Tk):
             except (OSError, TypeError, ValueError) as exc:
                 errors.append(f"Output names could not be calculated ({type(exc).__name__}).")
                 proposed = ()
+            output_keys: set[str] = set()
             for path in proposed:
-                if _canonical_path(path) in input_keys:
+                output_key = _canonical_path(path)
+                if output_key in output_keys:
+                    errors.append(
+                        f"More than one output would be named {path.name}. Rename one of the source PDFs."
+                    )
+                output_keys.add(output_key)
+                if output_key in input_keys:
                     errors.append(f"Output path may not equal an input path: {path.name}.")
                 if path.exists():
                     errors.append(f"An output file already exists: {path.name}.")
         else:
             errors.append("An output base name is required.")
         return list(dict.fromkeys(self._friendly_message(item) for item in errors if item))
+
+    def _function_step_complete(self) -> bool:
+        mode = self._mode()
+        return bool(
+            self._mode_confirmed
+            and self._confirmed_mode is mode
+            and (
+                mode is not StructureMode.NEITHER
+                or self.remove_password_var.get()
+                or self.compress_var.get()
+                or self.grayscale_var.get()
+            )
+        )
+
+    def _input_step_complete(self) -> bool:
+        count = len(self._inputs)
+        mode = self._mode()
+        if mode is StructureMode.JOIN:
+            count_ok = 2 <= count <= MAX_JOIN_INPUTS
+        elif mode is StructureMode.SPLIT:
+            count_ok = count == 1
+        else:
+            count_ok = 1 <= count <= MAX_SEPARATE_INPUTS
+        if not count_ok:
+            return False
+        for row in self._inputs:
+            info = row.info
+            if row.inspection_pending or info is None or info.error:
+                return False
+            if info.encrypted and (
+                not self.remove_password_var.get() or info.password_valid is not True
+            ):
+                return False
+        return True
+
+    def _split_step_complete(self) -> bool:
+        if self._mode() is not StructureMode.SPLIT:
+            return True
+        points, errors = self._parsed_split_points()
+        return bool(points and not errors)
+
+    def _output_step_complete(self) -> bool:
+        if not self._input_step_complete() or not self._split_step_complete():
+            return False
+        request = self._preview_request()
+        if request is None:
+            return False
+        if self._is_multi_separate():
+            bases = [path.stem for path in request.input_paths]
+        else:
+            bases = [
+                request.output_base
+                or (request.input_paths[0].stem if request.input_paths else "")
+            ]
+        if any(validate_output_base(base) for base in bases):
+            return False
+        output_dir = request.output_dir
+        if (
+            not output_dir.exists()
+            or not output_dir.is_dir()
+            or not os.access(output_dir, os.W_OK)
+        ):
+            return False
+        input_keys = {_canonical_path(row.path) for row in self._inputs}
+        try:
+            proposed = build_output_paths(request)
+        except (OSError, TypeError, ValueError):
+            return False
+        proposed_keys = [_canonical_path(path) for path in proposed]
+        return bool(proposed) and len(proposed_keys) == len(set(proposed_keys)) and all(
+            key not in input_keys and not path.exists()
+            for key, path in zip(proposed_keys, proposed, strict=True)
+        )
+
+    def _refresh_step_visuals(self, *, draft_valid: bool) -> None:
+        active = self._phase in {"preflighting", "processing", "cancelling"}
+        completed = self._phase == "succeeded"
+        if completed or active:
+            prior_complete = True
+            function_complete = input_complete = output_complete = prior_complete
+            split_complete = prior_complete
+            review_complete = prior_complete
+        else:
+            function_complete = self._function_step_complete()
+            input_complete = self._input_step_complete()
+            split_complete = self._split_step_complete()
+            output_complete = self._output_step_complete()
+            review_complete = draft_valid
+        states = {
+            "function": function_complete,
+            "input": input_complete,
+            "split": split_complete,
+            "output": output_complete,
+            "review": review_complete,
+            "process": completed,
+        }
+        for key, complete in states.items():
+            card_data = self._step_cards.get(key)
+            if card_data is None:
+                continue
+            card, badge, oval_id, _text_id = card_data
+            color = PRIMARY_BLUE if complete else WORKFLOW_INCOMPLETE
+            card.configure(highlightbackground=color, highlightcolor=color)
+            badge.itemconfigure(oval_id, fill=color, outline=color)
 
     def _refresh_state(self) -> None:
         active = self._phase in {"preflighting", "processing", "cancelling"}
@@ -1674,6 +3116,10 @@ class ProsApp(tk.Tk):
             self.grayscale_check,
         ):
             self._set_widget_enabled(widget, not active)
+        try:
+            self.drop_zone.configure(state="disabled" if active else "normal")
+        except tk.TclError:
+            pass
 
         add_allowed = not active and len(self._inputs) < self._input_limit()
         self._set_widget_enabled(self.add_pdf_button, add_allowed)
@@ -1691,6 +3137,10 @@ class ProsApp(tk.Tk):
         )
 
         password_enabled = not active and self.remove_password_var.get()
+        if self.remove_password_var.get():
+            self.password_group.grid(row=2, column=0, sticky="ew", pady=(0, 10))
+        else:
+            self.password_group.grid_remove()
         self.password_group.configure(
             style="Section.TLabelframe" if password_enabled else "Disabled.TLabelframe"
         )
@@ -1718,13 +3168,26 @@ class ProsApp(tk.Tk):
             self.remove_split_button,
             not active and mode is StructureMode.SPLIT and bool(self._split_rows),
         )
+        self._set_widget_enabled(
+            self.clear_split_button,
+            not active
+            and mode is StructureMode.SPLIT
+            and any(row.variable.get().strip() for row in self._split_rows),
+        )
+
+        if self._is_multi_separate():
+            self._set_widget_enabled(self.output_base_entry, False)
+        self._refresh_output_name_controls()
 
         positively_valid = idle_for_job and not errors
         self._set_process_enabled(positively_valid)
         self._set_widget_enabled(
             self.cancel_button, self._phase in {"preflighting", "processing"}
         )
-        indicator_color = "#22a447" if positively_valid else "#e6395b"
+        self._set_widget_enabled(self.clear_job_button, not active)
+        indicator_color = (
+            SUCCESS_GREEN if positively_valid or completed else "#e6395b"
+        )
         self.readiness_canvas.itemconfigure(self.readiness_indicator, fill=indicator_color)
         if positively_valid:
             readiness_text = "Ready to process"
@@ -1743,6 +3206,10 @@ class ProsApp(tk.Tk):
             self.open_destination_button,
             not active and self._last_destination is not None and self._last_destination.is_dir(),
         )
+        self._style_mode_buttons()
+        self._refresh_drop_zone()
+        self._refresh_review()
+        self._refresh_step_visuals(draft_valid=positively_valid)
 
     def _on_draft_changed(self) -> None:
         self._mark_draft_edited()
@@ -2351,17 +3818,90 @@ class ProsApp(tk.Tk):
 
     # --------------------------------------------------------------- help/exit
     def _show_about(self) -> None:
-        try:
-            from . import __version__
-        except ImportError:  # pragma: no cover
-            __version__ = "1.0"
-        messagebox.showinfo(
-            "About PROS",
-            f"PROS {__version__}\n\nPortable, offline PDF processing for Windows.\n"
-            "Password removal · Compression · Order/Join · Split\n\n"
-            "Original source PDFs are never modified.",
-            parent=self,
+        if self._about_window is not None:
+            try:
+                if self._about_window.winfo_exists():
+                    self._about_window.deiconify()
+                    self._about_window.lift()
+                    self._about_window.focus_set()
+                    return
+            except tk.TclError:
+                self._about_window = None
+
+        window = tk.Toplevel(self)
+        self._about_window = window
+        window.withdraw()
+        window.title("About PROS")
+        window.resizable(False, False)
+        window.transient(self)
+        window.protocol("WM_DELETE_WINDOW", self._close_about)
+
+        holder = ttk.Frame(window, padding=18)
+        holder.pack(fill="both", expand=True)
+        holder.columnconfigure(1, weight=1)
+
+        self._about_photo = self._load_brand_photo(
+            "assets/PROS-App-Icon.png", ABOUT_IMAGE_MAX_SIZE
         )
+        if self._about_photo is not None:
+            self._about_image_label = ttk.Label(holder, image=self._about_photo)
+        else:
+            self._about_image_label = ttk.Label(
+                holder, text="PROS", style="Title.TLabel", anchor="center"
+            )
+        self._about_image_label.grid(
+            row=0, column=0, rowspan=2, sticky="n", padx=(0, 18), pady=(0, 12)
+        )
+
+        self._about_title_label = ttk.Label(
+            holder, text=f"PROS v{__version__}", style="Title.TLabel"
+        )
+        self._about_title_label.grid(row=0, column=1, sticky="w")
+        self._about_copy_label = ttk.Label(
+            holder,
+            text=(
+                "Free Basic PDF Editor for Windows\n\n"
+                "Passwords removed · file sizes reduced · organise & join · split files\n\n"
+                "Portable and offline. Original source PDFs are never modified."
+            ),
+            justify="left",
+            wraplength=350,
+        )
+        self._about_copy_label.grid(row=1, column=1, sticky="nw", pady=(8, 12))
+
+        self._about_close_button = _SegmentButton(
+            holder, text="Close", command=self._close_about
+        )
+        self._about_close_button.grid(row=2, column=0, columnspan=2, pady=(5, 0))
+
+        window.bind("<Escape>", self._close_about_from_key)
+        window.bind("<Return>", self._close_about_from_key)
+        window.update_idletasks()
+        width = max(520, window.winfo_reqwidth())
+        height = max(270, window.winfo_reqheight())
+        x = max(0, self.winfo_rootx() + (self.winfo_width() - width) // 2)
+        y = max(0, self.winfo_rooty() + (self.winfo_height() - height) // 2)
+        window.geometry(f"{width}x{height}+{x}+{y}")
+        window.deiconify()
+        window.grab_set()
+        self._about_close_button.focus_set()
+
+    def _close_about_from_key(self, _event: tk.Event[Any] | None = None) -> str:
+        self._close_about()
+        return "break"
+
+    def _close_about(self) -> None:
+        window = self._about_window
+        if window is None:
+            return
+        try:
+            if window.grab_current() is window:
+                window.grab_release()
+            window.destroy()
+        except tk.TclError:
+            pass
+        self._about_window = None
+        self._about_photo = None
 
     def _show_third_party_notices(self) -> None:
         path = _resource_path("THIRD_PARTY_NOTICES.txt")
@@ -2385,7 +3925,9 @@ class ProsApp(tk.Tk):
         scroll.pack(side="right", fill="y")
         text.insert("1.0", contents)
         text.configure(state="disabled")
-        ttk.Button(window, text="Close", command=window.destroy).pack(pady=(0, 12))
+        _SegmentButton(window, text="Close", command=window.destroy).pack(
+            pady=(0, 12)
+        )
         window.transient(self)
         window.focus_set()
 
@@ -2412,6 +3954,18 @@ class ProsApp(tk.Tk):
             self._cleanup_staging(self._active_request)
         self._clear_passwords()
         self._finish_worker_handles()
+        self._close_about()
+        self._teardown_drag_drop()
+        if self._focus_reveal_after is not None:
+            try:
+                self.after_cancel(self._focus_reveal_after)
+            except tk.TclError:
+                pass
+            self._focus_reveal_after = None
+        try:
+            self.unbind("<FocusIn>", self._focus_reveal_binding)
+        except tk.TclError:
+            pass
         try:
             self.main_canvas.unbind_all("<MouseWheel>")
         except tk.TclError:

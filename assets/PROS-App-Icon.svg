@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">PROS Windows application icon</title>
+  <desc id="desc">Four document tiles labelled P, R, O and S</desc>
+  <g transform="translate(84 84)">
+    <g transform="translate(0 0)">
+      <path d="M56 0h274l98 98v274c0 31-25 56-56 56H56c-31 0-56-25-56-56V56C0 25 25 0 56 0z" fill="#0A2B5F"/>
+      <path d="M330 0v98h98" fill="#EAF1FA"/>
+      <text x="210" y="324" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="276" font-weight="700">P</text>
+    </g>
+    <g transform="translate(428 0)">
+      <path d="M56 0h274l98 98v274c0 31-25 56-56 56H56c-31 0-56-25-56-56V56C0 25 25 0 56 0z" fill="#1672E8"/>
+      <path d="M330 0v98h98" fill="#EAF1FA"/>
+      <text x="210" y="324" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="276" font-weight="700">R</text>
+    </g>
+    <g transform="translate(0 428)">
+      <path d="M56 0h274l98 98v274c0 31-25 56-56 56H56c-31 0-56-25-56-56V56C0 25 25 0 56 0z" fill="#09A7A2"/>
+      <path d="M330 0v98h98" fill="#EAF1FA"/>
+      <text x="210" y="324" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="276" font-weight="700">O</text>
+    </g>
+    <g transform="translate(428 428)">
+      <path d="M56 0h274l98 98v274c0 31-25 56-56 56H56c-31 0-56-25-56-56V56C0 25 25 0 56 0z" fill="#0A2B5F"/>
+      <path d="M330 0v98h98" fill="#EAF1FA"/>
+      <text x="210" y="324" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="276" font-weight="700">S</text>
+    </g>
+  </g>
+</svg>
