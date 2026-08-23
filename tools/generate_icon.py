@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Generate the PROS application icon from simple vector-like shapes."""
 
 from __future__ import annotations

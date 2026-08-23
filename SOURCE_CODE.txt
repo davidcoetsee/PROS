@@ -1,0 +1,20 @@
+PROS SOURCE CODE
+================
+
+PROS is open-source software licensed under the Mozilla Public License 2.0.
+
+The source code corresponding to this release, including the Windows build
+scripts and PyInstaller specification, is available from:
+
+https://github.com/davidcoetsee/PROS/tree/v1.5.1
+
+Release page:
+
+https://github.com/davidcoetsee/PROS/releases/tag/v1.5.1
+
+Use the release tag matching the version shown in PROS. Official release pages
+also provide the matching Windows executable, source archive, checksums, and
+third-party source information.
+
+The PROS name and logo are governed separately by TRADEMARKS.md. Third-party
+components remain under the licences identified in THIRD_PARTY_NOTICES.txt.

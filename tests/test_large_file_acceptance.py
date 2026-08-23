@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Opt-in acceptance test for the specification's 180 MiB requirement."""
 
 from __future__ import annotations

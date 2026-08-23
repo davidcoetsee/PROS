@@ -1,23 +1,25 @@
+# SPDX-License-Identifier: MPL-2.0
 [CmdletBinding()]
 param(
-    [switch]$SkipInstall,
-    [switch]$SkipTests,
-    [switch]$SkipSelfTest
+    [switch]$UpdateAuditManifests
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $ProjectRoot = [System.IO.Path]::GetFullPath($PSScriptRoot)
-$VenvRoot = Join-Path $ProjectRoot ".venv"
+$VenvRoot = Join-Path $ProjectRoot ".release-venv"
 $Python = Join-Path $VenvRoot "Scripts\python.exe"
 $DistPath = Join-Path $ProjectRoot "dist"
 $PyInstallerWorkPath = Join-Path $ProjectRoot "build\pyinstaller"
-# Keep spaces in this path intentionally: every release build verifies that
-# Windows argument quoting survives the one-file launcher.
-$SelfTestRoot = Join-Path $ProjectRoot "build\packaged self test"
+$BuildInfoDirectory = Join-Path $ProjectRoot "build\generated"
+$BuildInfoPath = Join-Path $BuildInfoDirectory "BUILD_INFO.json"
 $SpecPath = Join-Path $ProjectRoot "PROS.spec"
-$RequirementsPath = Join-Path $ProjectRoot "requirements-dev.txt"
+$LockPath = Join-Path $ProjectRoot "requirements-windows-x64.lock"
+$EnvironmentVerifier = Join-Path $ProjectRoot "tools\verify_release_environment.py"
+$WarningVerifier = Join-Path $ProjectRoot "tools\verify_pyinstaller_warnings.py"
+$ArchiveVerifier = Join-Path $ProjectRoot "tools\verify_frozen_archive.py"
+$ArtifactVerifier = Join-Path $ProjectRoot "verify_release_artifact.ps1"
 
 function Assert-ProjectChildPath {
     param([Parameter(Mandatory = $true)][string]$LiteralPath)
@@ -39,42 +41,110 @@ function Remove-ProjectBuildDirectory {
     }
 }
 
-if (-not (Test-Path -LiteralPath $Python -PathType Leaf)) {
+$GitStatus = @(& git -C $ProjectRoot status --porcelain --untracked-files=all)
+if ($LASTEXITCODE -ne 0) {
+    throw "Unable to inspect the PROS Git working tree."
+}
+if ($GitStatus.Count -ne 0) {
+    throw "Commit all source changes before building a provenance-bound PROS.exe."
+}
+$BuildCommit = (& git -C $ProjectRoot rev-parse HEAD).Trim()
+if ($LASTEXITCODE -ne 0 -or $BuildCommit -notmatch '^[0-9a-f]{40}$') {
+    throw "Unable to determine the clean build commit."
+}
+
+$BasePython = $null
+$BasePythonArguments = @()
+$PythonCommand = Get-Command "python.exe" -ErrorAction SilentlyContinue
+if ($null -ne $PythonCommand) {
+    $CandidateVersion = (& $PythonCommand.Source -c "import platform; print(platform.python_version())").Trim()
+    if ($LASTEXITCODE -eq 0 -and $CandidateVersion -eq "3.13.15") {
+        $BasePython = $PythonCommand.Source
+    }
+}
+if ($null -eq $BasePython) {
     $Launcher = Get-Command "py.exe" -ErrorAction SilentlyContinue
-    if ($null -eq $Launcher) {
-        throw "Python launcher not found. Install 64-bit CPython 3.13, then rerun build.ps1."
-    }
-    Write-Host "Creating isolated Python 3.13 environment at $VenvRoot"
-    & $Launcher.Source -3.13 -m venv $VenvRoot
-    if ($LASTEXITCODE -ne 0) {
-        throw "Unable to create the Python virtual environment."
-    }
-}
-
-if (-not $SkipInstall) {
-    Write-Host "Installing pinned build dependencies"
-    & $Python -m pip install --disable-pip-version-check --requirement $RequirementsPath
-    if ($LASTEXITCODE -ne 0) {
-        throw "Dependency installation failed."
-    }
-}
-
-if (-not $SkipTests) {
-    $TestsPath = Join-Path $ProjectRoot "tests"
-    if (Test-Path -LiteralPath $TestsPath -PathType Container) {
-        Write-Host "Running source tests"
-        & $Python -m pytest -q $TestsPath
-        if ($LASTEXITCODE -ne 0) {
-            throw "Source tests failed; PROS.exe was not built."
+    if ($null -ne $Launcher) {
+        $CandidateVersion = (& $Launcher.Source -3.13 -c "import platform; print(platform.python_version())").Trim()
+        if ($LASTEXITCODE -eq 0 -and $CandidateVersion -eq "3.13.15") {
+            $BasePython = $Launcher.Source
+            $BasePythonArguments = @("-3.13")
         }
     }
-    else {
-        Write-Warning "No tests directory was found; continuing with the packaged self-test."
-    }
+}
+if ($null -eq $BasePython) {
+    throw "Python not found. Install 64-bit CPython 3.13.15, then rerun build.ps1."
 }
 
-# PyInstaller does not remove unrelated files from dist. Clearing these two
-# narrowly scoped project directories ensures the release really is one file.
+Remove-ProjectBuildDirectory -LiteralPath $VenvRoot
+Write-Host "Creating a fresh audited CPython 3.13 release environment"
+& $BasePython @BasePythonArguments -m venv $VenvRoot
+if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath $Python -PathType Leaf)) {
+    throw "Unable to create the isolated release environment."
+}
+
+$BootstrapVersion = (& $Python -c "import platform; print(platform.python_version())").Trim()
+if ($LASTEXITCODE -ne 0 -or $BootstrapVersion -ne "3.13.15") {
+    throw "The release build requires CPython 3.13.15; found $BootstrapVersion."
+}
+
+$InstallArguments = @(
+    "-m", "pip", "install",
+    "--disable-pip-version-check",
+    "--require-hashes",
+    "--only-binary=:all:"
+)
+$Wheelhouse = [Environment]::GetEnvironmentVariable("PROS_WHEELHOUSE")
+if ($Wheelhouse) {
+    $WheelhousePath = [System.IO.Path]::GetFullPath($Wheelhouse)
+    if (-not (Test-Path -LiteralPath $WheelhousePath -PathType Container)) {
+        throw "PROS_WHEELHOUSE is not a directory: $WheelhousePath"
+    }
+    $InstallArguments += @("--no-index", "--find-links", $WheelhousePath)
+}
+$InstallArguments += @("--requirement", $LockPath)
+
+Write-Host "Installing only SHA-256-approved Windows x64 wheels"
+& $Python @InstallArguments
+if ($LASTEXITCODE -ne 0) {
+    throw "Hash-locked release dependency installation failed."
+}
+
+Write-Host "Verifying the closed release environment and native inventory"
+& $Python $EnvironmentVerifier
+if ($LASTEXITCODE -ne 0) {
+    throw "The release environment does not match the audited inventory."
+}
+
+$Version = (& $Python -c "from pros import __version__; print(__version__)").Trim()
+if ($LASTEXITCODE -ne 0 -or $Version -notmatch '^\d+\.\d+\.\d+$') {
+    throw "Unable to determine a valid PROS version."
+}
+
+Remove-ProjectBuildDirectory -LiteralPath $BuildInfoDirectory
+New-Item -ItemType Directory -Path $BuildInfoDirectory -Force | Out-Null
+$BuildInfo = [ordered]@{
+    schema_version = 1
+    pros_version = $Version
+    git_commit = $BuildCommit
+}
+$BuildInfoJson = $BuildInfo | ConvertTo-Json
+[System.IO.File]::WriteAllText(
+    $BuildInfoPath,
+    $BuildInfoJson + "`n",
+    [System.Text.UTF8Encoding]::new($false)
+)
+
+$TestsPath = Join-Path $ProjectRoot "tests"
+if (-not (Test-Path -LiteralPath $TestsPath -PathType Container)) {
+    throw "The source test directory is missing; refusing to build PROS.exe."
+}
+Write-Host "Running the complete source test suite"
+& $Python -m pytest -q $TestsPath
+if ($LASTEXITCODE -ne 0) {
+    throw "Source tests failed; PROS.exe was not built."
+}
+
 Remove-ProjectBuildDirectory -LiteralPath $DistPath
 Remove-ProjectBuildDirectory -LiteralPath $PyInstallerWorkPath
 New-Item -ItemType Directory -Path $DistPath -Force | Out-Null
@@ -95,46 +165,45 @@ $Executable = Join-Path $DistPath "PROS.exe"
 if (-not (Test-Path -LiteralPath $Executable -PathType Leaf)) {
     throw "Build completed without producing $Executable"
 }
-
 $DistEntries = @(Get-ChildItem -LiteralPath $DistPath -Force)
 if ($DistEntries.Count -ne 1 -or $DistEntries[0].Name -ne "PROS.exe") {
     $Names = ($DistEntries | ForEach-Object Name) -join ", "
     throw "The release directory is not a single-file bundle. Found: $Names"
 }
 
-if (-not $SkipSelfTest) {
-    Remove-ProjectBuildDirectory -LiteralPath $SelfTestRoot
-    New-Item -ItemType Directory -Path $SelfTestRoot -Force | Out-Null
-
-    Write-Host "Running the packaged engine self-test"
-    $QuotedSelfTestRoot = '"' + $SelfTestRoot + '"'
-    $SelfTestProcess = Start-Process `
-        -FilePath $Executable `
-        -ArgumentList "--self-test $QuotedSelfTestRoot" `
-        -WindowStyle Hidden `
-        -Wait `
-        -PassThru
-    if ($SelfTestProcess.ExitCode -ne 0) {
-        $Report = Get-ChildItem -LiteralPath $SelfTestRoot -Filter "selftest-result.json" -File -Recurse |
-            Sort-Object LastWriteTime -Descending |
-            Select-Object -First 1
-        if ($null -ne $Report) {
-            Write-Host (Get-Content -LiteralPath $Report.FullName -Raw)
-        }
-        throw "Packaged self-test failed with exit code $($SelfTestProcess.ExitCode)."
+if ($UpdateAuditManifests) {
+    Write-Host "Updating reviewed PyInstaller warning and frozen-archive manifests"
+    & $Python $WarningVerifier --update-allowlist
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to update the PyInstaller warning allowlist."
     }
-
-    $Report = Get-ChildItem -LiteralPath $SelfTestRoot -Filter "selftest-result.json" -File -Recurse |
-        Sort-Object LastWriteTime -Descending |
-        Select-Object -First 1
-    if ($null -eq $Report) {
-        throw "Packaged self-test exited successfully but did not write its result report."
+    & $Python $ArchiveVerifier --update-manifest
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to update the frozen archive manifest."
     }
-    Write-Host "Packaged self-test report: $($Report.FullName)"
 }
+else {
+    Write-Host "Checking PyInstaller warnings and the complete frozen inventory"
+    & $Python $WarningVerifier
+    if ($LASTEXITCODE -ne 0) {
+        throw "PyInstaller warnings differ from the reviewed allowlist."
+    }
+    & $Python $ArchiveVerifier
+    if ($LASTEXITCODE -ne 0) {
+        throw "The frozen archive differs from the reviewed full allowlist."
+    }
+}
+
+& $ArtifactVerifier `
+    -Executable $Executable `
+    -ExpectedVersion $Version `
+    -ExpectedCommit $BuildCommit
 
 $Hash = Get-FileHash -LiteralPath $Executable -Algorithm SHA256
 $Size = (Get-Item -LiteralPath $Executable).Length
 Write-Host "Build complete: $Executable"
 Write-Host "Size: $Size bytes"
 Write-Host "SHA-256: $($Hash.Hash)"
+if ($UpdateAuditManifests) {
+    Write-Warning "Audit manifests were updated. Review and commit them, then run build.ps1 again before release."
+}

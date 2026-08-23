@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Process-worker adapter that keeps PDF work outside the GUI thread."""
 
 from __future__ import annotations

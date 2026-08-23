@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Public data contracts shared by the PROS UI, worker, and PDF engine."""
 
 from __future__ import annotations

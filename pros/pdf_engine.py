@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Offline pikepdf/qpdf engine for atomic PROS PDF jobs."""
 
 from __future__ import annotations

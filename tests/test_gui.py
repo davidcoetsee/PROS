@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 from __future__ import annotations
 
 import tkinter as tk
@@ -384,6 +385,7 @@ def test_about_is_branded_modal_and_all_close_routes_work(app: ProsApp) -> None:
     copy = str(app._about_copy_label.cget("text"))
     assert "Free Basic PDF Editor for Windows" in copy
     assert "Original source PDFs are never modified" in copy
+    assert "MPL 2.0" in copy
     assert window.bind("<Escape>")
     assert window.bind("<Return>")
     assert window.protocol("WM_DELETE_WINDOW")
@@ -422,6 +424,39 @@ def test_about_uses_text_fallback_when_app_icon_is_missing(
         assert app._about_title_label.cget("text") == f"PROS v{__version__}"
     finally:
         app._close_about()
+
+
+def test_open_source_dialog_exposes_licence_source_and_brand_terms(
+    app: ProsApp, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    documents = {
+        "SOURCE_CODE.txt": "Exact source: https://example.invalid/PROS/tree/v1.5.1",
+        "LICENSE": "Mozilla Public License Version 2.0",
+        "TRADEMARKS.md": "Modified builds must use different branding.",
+        "ASSET_LICENSES.md": "Canonical assets are MPL-2.0 licensed files.",
+    }
+    paths: dict[str, Path] = {}
+    for filename, contents in documents.items():
+        path = tmp_path / filename
+        path.write_text(contents, encoding="utf-8")
+        paths[filename] = path
+
+    monkeypatch.setattr(gui, "_resource_path", lambda filename: paths.get(filename))
+    window = app._show_license_and_source()
+    try:
+        assert window.title() == "PROS — Open-source licence and source"
+        text_widgets = [
+            child
+            for holder in window.winfo_children()
+            for child in holder.winfo_children()
+            if isinstance(child, tk.Text)
+        ]
+        assert len(text_widgets) == 1
+        displayed = text_widgets[0].get("1.0", "end-1c")
+        for contents in documents.values():
+            assert contents in displayed
+    finally:
+        window.destroy()
 
 
 def test_modes_are_exclusive_and_show_only_the_relevant_panel(app: ProsApp) -> None:

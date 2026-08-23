@@ -1,4 +1,6 @@
+# SPDX-License-Identifier: MPL-2.0
 .venv/
+.release-venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -6,6 +8,7 @@ __pycache__/
 htmlcov/
 build/
 dist/
+release/
 *.spec.bak
 test-artifacts/
 tmp/

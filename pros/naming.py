@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Pure output naming rules from the PROS ranked naming matrix."""
 
 from __future__ import annotations

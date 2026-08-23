@@ -1,15 +1,20 @@
-# PROS 1.5.0
+# PROS 1.5.1
 
-PROS is a local Windows desktop utility for processing PDF files. It can remove
-known PDF passwords, aggressively compress PDFs, convert supported colour
-content to grayscale independently of compression, join multiple inputs, split
-an input at validated page boundaries, and write predictably named results
-without changing the source files.
+PROS is a free, open-source Windows desktop utility for processing PDF files.
+It can remove known PDF passwords, aggressively compress PDFs, convert
+supported colour content to grayscale independently of compression, join
+multiple inputs, split an input at validated page boundaries, and write
+predictably named results without changing the source files.
 
 The release is a single windowed `PROS.exe`. It uses Python's Tk interface and
 pikepdf/qpdf. The tkinterdnd2 wrapper and its bundled TkDND extension provide
 native Windows File Explorer drag and drop. PROS does **not** use Qt, PySide, or
 PyQt.
+
+Official Windows builds are provided without charge on the
+[GitHub Releases page](https://github.com/davidcoetsee/PROS/releases). Each
+release keeps the one-file portable format and links the executable to its
+matching source tag and checksums.
 
 ## Run the application
 
@@ -132,22 +137,24 @@ random `%TEMP%\_MEI...` directory while it runs and removes that directory after
 a normal exit. The first launch may therefore be slower and may be inspected by
 antivirus software.
 
-Building from source normally uses the internet to download pinned packages.
-That is separate from the behaviour of the finished executable. For an offline
-build, prepare a wheelhouse on a connected Windows x64 machine using the same
-Python version:
+Building from source normally uses the internet to download hash-approved
+Windows wheels. That is separate from the behaviour of the finished
+executable. For an offline release build, prepare a wheelhouse on a connected
+Windows x64 machine using the exact Python version and audited lock file:
 
 ```powershell
-py -3.13 -m pip download --requirement requirements-dev.txt --dest wheelhouse
-.\.venv\Scripts\python.exe -m pip install --no-index --find-links wheelhouse --requirement requirements-dev.txt
-.\build.ps1 -SkipInstall
+py -3.13 -m pip download --require-hashes --only-binary=:all: --requirement requirements-windows-x64.lock --dest wheelhouse
+$env:PROS_WHEELHOUSE = (Resolve-Path .\wheelhouse)
+.\build.ps1
+Remove-Item Env:\PROS_WHEELHOUSE
 ```
 
 ## Build `PROS.exe`
 
 Prerequisites:
 
-- 64-bit CPython 3.13 from python.org, including Tcl/Tk and the `py.exe` launcher
+- 64-bit CPython 3.13.15 from python.org, including Tcl/Tk and the `py.exe`
+  launcher
 - Windows PowerShell 5.1 or PowerShell 7+
 
 From the repository root:
@@ -157,27 +164,66 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\build.ps1
 ```
 
-The build script creates `.venv` if needed, installs exact versions from
-`requirements-dev.txt`, runs the source test suite, removes only the project's
-`dist` and PyInstaller work directories, builds the one-file windowed program,
-and runs the packaged engine self-test. The release is:
+The build script requires a clean Git commit, recreates an isolated
+`.release-venv`, and installs only the exact Windows wheels and SHA-256 hashes
+approved by `requirements-windows-x64.lock`. It rejects extra distributions,
+verifies the audited Python, package, and native-library versions, runs the full
+source test suite, removes only project-scoped build directories, builds the
+one-file windowed program, and runs the packaged engine self-test. The release
+is:
 
 ```text
 dist\PROS.exe
 ```
 
-It prints the executable's byte size and SHA-256 hash when complete. Use
-`-SkipInstall`, `-SkipTests`, or `-SkipSelfTest` only when that stage has already
-been completed independently.
+It also compares every embedded outer-archive item, Python module, standard
+library ZIP entry, DLL, and data file with a reviewed allowlist. The build fails
+on an unexpected PyInstaller warning; absent legal, brand, PDF, GUI, or
+drag-and-drop payload; the unused ISO Schematron module or data; incorrect PE
+architecture/subsystem/icon resources; or a mismatch between the embedded Git
+commit and the clean source tree. No release verification stage is skippable.
+The script prints the executable's byte size and SHA-256 hash when complete.
 
-`PROS.spec` requires and bundles the five canonical brand files: the Windows/Tk
-ICO, the logo and application-icon PNGs, and both SVG masters. The build fails
-instead of silently substituting PyInstaller artwork if any is missing.
+After an intentional dependency, PyInstaller, or frozen-payload change, run
+`.\build.ps1 -UpdateAuditManifests` once from an otherwise clean commit.
+Review the exact warning and archive changes it writes under `packaging`, commit
+the approved manifests, and then run ordinary `.\build.ps1` again. The update
+switch is maintenance tooling and never bypasses verification for an official
+release.
+
+`PROS.spec` requires and bundles the five canonical brand files; the MPL
+licence; the exact-source, trademark, and asset notices; and the complete
+third-party notices. The Windows/Tk ICO, logo and application-icon PNGs, and
+both SVG masters remain available inside the one-file executable. The build
+fails instead of silently substituting PyInstaller artwork or omitting a legal
+document if any required file is missing.
 `hook-pikepdf.py` explicitly collects the qpdf DLLs vendored by the Windows
 pikepdf wheel. PyInstaller's standard Tk hooks collect Tcl/Tk, while the pinned
 pyinstaller-hooks-contrib hook collects only tkinterdnd2's Windows x64 TkDND
 DLL and Tcl scripts. No blanket Pillow, Tk, or multi-platform DnD collection is
-used.
+used. The unused `lxml.isoschematron` module and its data resources are
+explicitly excluded; normal lxml, pikepdf, qpdf, compression, and grayscale
+functionality remains included.
+
+## Prepare release assets
+
+After committing and successfully building the exact source, create tag
+`v1.5.1` at that commit and push the repository and tag publicly. Then run:
+
+```powershell
+.\prepare_release.ps1
+```
+
+The script requires a clean Git working tree and proves that the local tag,
+public remote tag, and `HEAD` resolve to the same commit. It always performs a
+fresh hash-locked rebuild and confirms that the EXE FileVersion, ProductVersion,
+embedded commit, packaged self-test version, source files, and tag all agree.
+It then validates hash-pinned pikepdf and qpdf source archives and prepares the
+renamed Windows executable, exact tagged PROS source archive, third-party source
+archives, and `SHA256SUMS.txt` in a unique staging directory. The completed
+directory is moved into place only after every check succeeds, and an existing
+version is never overwritten. The ignored `release` directory is uploaded only
+to the matching tagged GitHub Release.
 
 ## Packaged self-test
 
@@ -231,6 +277,33 @@ Remove-Item Env:\PROS_RUN_LARGE_TEST
 Inspect `build\pyinstaller\PROS\warn-PROS.txt` after each dependency upgrade.
 Unexpected missing imports must be resolved before release. Do not add blanket
 `--collect-all PySide6` or other Qt workarounds; Qt is not a PROS dependency.
+
+## Licence
+
+Copyright (c) 2026 David Coetsee and PROS contributors.
+
+Except where a file or notice states otherwise, PROS-authored source code,
+documentation, and original asset files in this repository are licensed under
+the [Mozilla Public License 2.0](LICENSE) (`MPL-2.0`). MPL-2.0 applies at the
+file level: changes to MPL-covered files that are distributed must remain
+available under MPL-2.0, while those files may be combined with separately
+licensed code.
+
+The PROS name, logo, wordmark, and application icon identify official project
+releases. Their copyright is covered by MPL-2.0 where they are PROS-authored
+project files, but MPL-2.0 grants no trademark rights. See
+[TRADEMARKS.md](TRADEMARKS.md) for permitted brand use, including unmodified
+redistribution and clearly identified forks.
+
+Third-party components are not relicensed under MPL-2.0. They remain under
+their respective terms, which are recorded in
+[THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
+
+Each official binary release must identify the matching repository tag or
+versioned source archive from which it was built. Anyone distributing PROS in
+Executable Form must comply with MPL-2.0 Section 3.2, including informing
+recipients how they can obtain the corresponding MPL-covered Source Code Form
+by reasonable means in a timely manner.
 
 ## Third-party software
 

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Tk/ttk desktop interface for the portable PROS PDF application.
 
 The GUI deliberately owns no PDF mutation logic.  It keeps an editable job
@@ -440,6 +441,10 @@ class ProsApp(tk.Tk):
         menubar.add_cascade(label="File", menu=file_menu)
         help_menu = tk.Menu(menubar)
         help_menu.add_command(label="About PROS", command=self._show_about)
+        help_menu.add_command(
+            label="Open-source licence and source",
+            command=self._show_license_and_source,
+        )
         help_menu.add_command(
             label="Third-party notices", command=self._show_third_party_notices
         )
@@ -3862,7 +3867,8 @@ class ProsApp(tk.Tk):
             text=(
                 "Free Basic PDF Editor for Windows\n\n"
                 "Passwords removed · file sizes reduced · organise & join · split files\n\n"
-                "Portable and offline. Original source PDFs are never modified."
+                "Portable and offline. Original source PDFs are never modified.\n\n"
+                "Open-source software licensed under MPL 2.0."
             ),
             justify="left",
             wraplength=350,
@@ -3903,17 +3909,16 @@ class ProsApp(tk.Tk):
         self._about_window = None
         self._about_photo = None
 
-    def _show_third_party_notices(self) -> None:
-        path = _resource_path("THIRD_PARTY_NOTICES.txt")
+    def _read_bundled_document(self, filename: str) -> str:
+        path = _resource_path(filename)
         try:
-            contents = path.read_text(encoding="utf-8") if path else ""
+            return path.read_text(encoding="utf-8") if path else ""
         except OSError as exc:
-            contents = f"Third-party notices could not be read ({type(exc).__name__})."
-        if not contents:
-            contents = "THIRD_PARTY_NOTICES.txt was not found in this application bundle."
+            return f"{filename} could not be read ({type(exc).__name__})."
 
+    def _show_document_window(self, title: str, contents: str) -> tk.Toplevel:
         window = tk.Toplevel(self)
-        window.title("PROS — Third-party notices")
+        window.title(title)
         window.geometry("800x600")
         window.minsize(540, 360)
         holder = ttk.Frame(window, padding=12)
@@ -3930,6 +3935,29 @@ class ProsApp(tk.Tk):
         )
         window.transient(self)
         window.focus_set()
+        return window
+
+    def _show_license_and_source(self) -> tk.Toplevel:
+        sections: list[str] = []
+        for heading, filename in (
+            ("Source code", "SOURCE_CODE.txt"),
+            ("Mozilla Public License 2.0", "LICENSE"),
+            ("Trademark policy", "TRADEMARKS.md"),
+            ("Brand asset licensing", "ASSET_LICENSES.md"),
+        ):
+            contents = self._read_bundled_document(filename).strip()
+            if not contents:
+                contents = f"{filename} was not found in this application bundle."
+            sections.append(f"{heading}\n{'=' * len(heading)}\n\n{contents}")
+        return self._show_document_window(
+            "PROS — Open-source licence and source", "\n\n".join(sections)
+        )
+
+    def _show_third_party_notices(self) -> tk.Toplevel:
+        contents = self._read_bundled_document("THIRD_PARTY_NOTICES.txt")
+        if not contents:
+            contents = "THIRD_PARTY_NOTICES.txt was not found in this application bundle."
+        return self._show_document_window("PROS — Third-party notices", contents)
 
     def _on_close(self) -> None:
         active = self._phase in {"preflighting", "processing", "cancelling"}

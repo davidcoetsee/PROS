@@ -1,10 +1,14 @@
 PROS THIRD-PARTY SOFTWARE NOTICES
 =================================
 
-This notice applies to the PROS 1.5.0 Windows x64 one-file build produced from
-the pinned requirements in this repository on 22 August 2026. It is embedded in
-PROS.exe and is also supplied with the source tree. PROS itself is a separate
-work; the terms below apply to the identified third-party components.
+This notice applies to the PROS 1.5.1 Windows x64 one-file build produced from
+the pinned requirements in this repository on 23 August 2026. It is embedded in
+PROS.exe and is also supplied with the source tree. PROS first-party source code
+and project-authored assets are licensed under MPL-2.0 as described in LICENSE
+and ASSET_LICENSES.md. The terms below apply to the identified third-party
+components, which are not relicensed as PROS code.
+
+Matching PROS source: https://github.com/davidcoetsee/PROS/tree/v1.5.1
 
 No third-party author or contributor provides a warranty for PROS. Component
 names and trademarks are used only to identify their respective projects.
@@ -45,8 +49,11 @@ The build uses, or may contain object code from, these components:
   Source:
   https://github.com/pyinstaller/pyinstaller-hooks-contrib/tree/v2026.6
 
-The exact Windows wheels inspected for this build report these embedded native
-components:
+The exact Windows wheels inspected for this build are SHA-256 pinned in
+requirements-windows-x64.lock, installed into a newly recreated release
+environment, and checked against their installed RECORD hashes. The completed
+one-file archive is compared with the reviewed full-content allowlist before
+release. Those wheels report these embedded native components:
 
 * qpdf 12.3.2 and Microsoft Visual C++ Runtime object code in the pikepdf wheel.
   The pikepdf wheel notice reproduced below also covers IJG JPEG code and zlib
@@ -74,6 +81,9 @@ components:
 * The lxml wheel reports libxml2 2.11.9 and libxslt 1.1.45. Sources:
   https://gitlab.gnome.org/GNOME/libxml2/-/tree/v2.11.9
   https://gitlab.gnome.org/GNOME/libxslt/-/tree/v1.1.45
+  PROS does not use lxml.isoschematron and explicitly excludes that module and
+  its data resources from the executable. This includes RNG2Schtrn.xsl and
+  XSD2Schtrn.xsl, which lxml's upstream inventory describes as unlicensed.
 * The official CPython runtime may contribute OpenSSL 3.0.21, zlib 1.3.1,
   libffi, and other standard-library support code if imports used by PROS cause
   those modules to be collected. Sources and notices are maintained in the
@@ -84,13 +94,15 @@ Pillow's build can contain codec implementations under their own permissive
 terms (principally BSD, MIT, IJG, FreeType, and zlib-family licences). The
 links above point directly to the versioned source trees and their complete
 licence files. This software is based in part on the work of the Independent
-JPEG Group.
+JPEG Group. The complete Pillow wheel terms reproduced below also identify
+libpng, Brotli, HarfBuzz, XZ, and libavif subcomponents where applicable.
 
 SOURCE AVAILABILITY
 -------------------
 
-The versioned source links above make the complete, unmodified source used for
-the covered open-source components available without charge. PROS does not
+The matching PROS source link and versioned third-party source links above make
+the complete, unmodified source used for the covered open-source components
+available without charge. PROS does not
 modify pikepdf, qpdf, Pillow, lxml, CPython, Tcl/Tk, tkinterdnd2, TkDND, or
 PyInstaller. The tkinterdnd2 release link identifies the exact wrapper and
 bundled payload inspected for this build; the separate TkDND links provide its

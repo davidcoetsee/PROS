@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Pure validation helpers and authoritative job preflight."""
 
 from __future__ import annotations

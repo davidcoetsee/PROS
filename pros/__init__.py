@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """PROS PDF processing application core package."""
 
 from .models import (
@@ -10,7 +11,7 @@ from .models import (
     StructureMode,
 )
 
-__version__ = "1.5.0"
+__version__ = "1.5.1"
 
 __all__ = [
     "CompressionLevel",

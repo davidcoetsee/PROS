@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Deterministic release health check for source and frozen PROS builds."""
 
 from __future__ import annotations
@@ -6,20 +7,26 @@ import hashlib
 import json
 import os
 import platform
+import re
+import ssl
 import sys
 import tempfile
 import tkinter as tk
 import traceback
 import xml.etree.ElementTree as ET
+import zlib
 from io import BytesIO
 from pathlib import Path
 from typing import Any
 
+import lxml
 import pikepdf
 import tkinterdnd2
-from PIL import Image
+from lxml import etree
+from PIL import Image, ImageTk, _imaging, features
 from tkinterdnd2 import TkinterDnD
 
+from pros import __version__
 from pros.models import CompressionLevel, JobRequest, StructureMode
 from pros.pdf_engine import process_job
 
@@ -62,6 +69,14 @@ _SVG_ASSET_SPECS = {
     ),
 }
 _SVG_NAMESPACE = "http://www.w3.org/2000/svg"
+_BUILD_COMMIT_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+_LEGAL_DOCUMENT_MARKERS = {
+    "LICENSE": "Mozilla Public License Version 2.0",
+    "SOURCE_CODE.txt": "https://github.com/davidcoetsee/PROS/tree/",
+    "TRADEMARKS.md": "# PROS trademark policy",
+    "ASSET_LICENSES.md": "# PROS asset licensing",
+    "THIRD_PARTY_NOTICES.txt": "PROS THIRD-PARTY SOFTWARE NOTICES",
+}
 _TKINTERDND2_VERSION = "0.6.2"
 _TKINTERDND2_WHEEL_SHA256 = (
     "b6a8b229d26286c022bb2fbd311c2e431e4d9bbab8133be80e9c98e7bcf9fe59"
@@ -119,6 +134,108 @@ def _brand_assets_directory() -> Path:
     if frozen_root:
         return Path(frozen_root) / "assets"
     return Path(__file__).resolve().parents[1] / "assets"
+
+
+def _legal_documents_directory() -> Path:
+    frozen_root = getattr(sys, "_MEIPASS", None)
+    if frozen_root:
+        return Path(frozen_root)
+    return Path(__file__).resolve().parents[1]
+
+
+def _inspect_build_info() -> dict[str, Any]:
+    """Validate immutable provenance embedded by the clean release build."""
+
+    frozen_root = getattr(sys, "_MEIPASS", None)
+    if not frozen_root:
+        return {
+            "embedded": False,
+            "pros_version": __version__,
+            "git_commit": None,
+        }
+
+    path = Path(frozen_root) / "BUILD_INFO.json"
+    if not path.is_file():
+        raise RuntimeError(f"Embedded build provenance was not found: {path}")
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise RuntimeError(f"Embedded build provenance is invalid: {exc}") from exc
+
+    if payload.get("schema_version") != 1:
+        raise RuntimeError("Embedded build provenance schema is not supported")
+    if payload.get("pros_version") != __version__:
+        raise RuntimeError("Embedded build version does not match the application")
+    git_commit = payload.get("git_commit")
+    if not isinstance(git_commit, str) or not _BUILD_COMMIT_PATTERN.fullmatch(
+        git_commit
+    ):
+        raise RuntimeError("Embedded build commit is not a full Git commit ID")
+    return {
+        "embedded": True,
+        "pros_version": __version__,
+        "git_commit": git_commit,
+        "path": str(path),
+        "sha256": _sha256(path),
+        "size_bytes": path.stat().st_size,
+    }
+
+
+def _inspect_runtime_inventory() -> dict[str, Any]:
+    """Report every exact native/runtime version asserted by release notices."""
+
+    pillow_native_names = (
+        "freetype2",
+        "littlecms2",
+        "webp",
+        "avif",
+        "libjpeg_turbo",
+        "zlib_ng",
+        "jpg_2000",
+        "libtiff",
+    )
+    return {
+        "openssl": ssl.OPENSSL_VERSION,
+        "zlib": zlib.ZLIB_RUNTIME_VERSION,
+        "lxml": lxml.__version__,
+        "libxml2": ".".join(map(str, etree.LIBXML_VERSION)),
+        "libxslt": ".".join(map(str, etree.LIBXSLT_VERSION)),
+        "pillow": Image.__version__,
+        "pillow_native": {
+            name: features.version(name) for name in pillow_native_names
+        },
+        "pillow_flags": {
+            "libjpeg_turbo": bool(_imaging.HAVE_LIBJPEGTURBO),
+            "zlib_ng": bool(_imaging.HAVE_ZLIBNG),
+        },
+    }
+
+
+def _inspect_legal_documents() -> dict[str, Any]:
+    """Validate the embedded project licence/source disclosure bundle."""
+
+    root = _legal_documents_directory()
+    manifest: dict[str, dict[str, Any]] = {}
+    for filename, required_marker in _LEGAL_DOCUMENT_MARKERS.items():
+        path = root / filename
+        if not path.is_file():
+            raise RuntimeError(f"Required legal document was not found: {path}")
+        contents = path.read_text(encoding="utf-8")
+        if required_marker not in contents:
+            raise RuntimeError(f"Required marker missing from {filename}")
+        manifest[filename] = {
+            "path": str(path),
+            "sha256": _sha256(path),
+            "size_bytes": path.stat().st_size,
+        }
+
+    versioned_source = f"https://github.com/davidcoetsee/PROS/tree/v{__version__}"
+    source_notice = (root / "SOURCE_CODE.txt").read_text(encoding="utf-8")
+    if versioned_source not in source_notice:
+        raise RuntimeError(
+            "SOURCE_CODE.txt does not identify the source for this exact version"
+        )
+    return {"directory": str(root), "files": manifest, "source": versioned_source}
 
 
 def _inspect_brand_assets() -> dict[str, Any]:
@@ -303,6 +420,15 @@ def _probe_dnd_runtime() -> dict[str, Any]:
         tcl_version = str(root.tk.call("info", "patchlevel"))
         tk_version = str(root.tk.call("package", "require", "Tk"))
         tkdnd_version = str(TkinterDnD.require(root))
+        probe_image = Image.new("RGBA", (1, 1), (0, 0, 0, 0))
+        try:
+            image_tk_probe = ImageTk.PhotoImage(probe_image, master=root)
+            image_tk_loaded = (
+                image_tk_probe.width() == 1 and image_tk_probe.height() == 1
+            )
+            del image_tk_probe
+        finally:
+            probe_image.close()
     except (RuntimeError, tk.TclError) as exc:
         raise RuntimeError(f"TkDND runtime probe failed: {exc}") from exc
     finally:
@@ -321,6 +447,8 @@ def _probe_dnd_runtime() -> dict[str, Any]:
         raise RuntimeError(
             f"Expected TkDND {_TKDND_VERSION}, found {tkdnd_version}"
         )
+    if not image_tk_loaded:
+        raise RuntimeError("Pillow ImageTk could not create a Tk image")
 
     report.update(
         {
@@ -330,6 +458,7 @@ def _probe_dnd_runtime() -> dict[str, Any]:
             "tcl_version": tcl_version,
             "tk_version": tk_version,
             "tkdnd_version": tkdnd_version,
+            "image_tk_loaded": True,
         }
     )
     return report
@@ -588,6 +717,7 @@ def run_self_test(output_dir: str | os.PathLike[str]) -> int:
     report: dict[str, Any] = {
         "status": "failed",
         "frozen": bool(getattr(sys, "frozen", False)),
+        "pros": __version__,
         "python": sys.version.split()[0],
         "pikepdf": pikepdf.__version__,
         "qpdf": pikepdf.__libqpdf_version__,
@@ -595,7 +725,10 @@ def run_self_test(output_dir: str | os.PathLike[str]) -> int:
     }
 
     try:
+        report["build_info"] = _inspect_build_info()
+        report["runtime_inventory"] = _inspect_runtime_inventory()
         report["brand_assets"] = _inspect_brand_assets()
+        report["legal_documents"] = _inspect_legal_documents()
         report["drag_and_drop"] = _probe_dnd_runtime()
         _make_input_pdf(input_path)
         _make_input_pdf(second_input_path)

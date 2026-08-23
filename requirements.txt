@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 # Runtime dependencies. tkinter/Tcl/Tk ships with the official CPython build.
 pikepdf==10.11.0
 Pillow==12.3.0

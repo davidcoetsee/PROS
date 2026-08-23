@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Collect DLLs installed beside pikepdf by delvewheel on Windows."""
 
 from PyInstaller.utils.hooks import collect_delvewheel_libs_directory

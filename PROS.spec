@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 # ruff: noqa: F821
 """PyInstaller recipe for the Windows PROS one-file executable."""
 
@@ -5,9 +6,17 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(SPECPATH).resolve()
 ENTRY_POINT = PROJECT_ROOT / "main.py"
-NOTICES = PROJECT_ROOT / "THIRD_PARTY_NOTICES.txt"
 ICON = PROJECT_ROOT / "assets" / "PROS.ico"
 VERSION_INFO = PROJECT_ROOT / "packaging" / "version_info.txt"
+BUILD_INFO = PROJECT_ROOT / "build" / "generated" / "BUILD_INFO.json"
+LEGAL_DOCUMENT_NAMES = (
+    "LICENSE",
+    "SOURCE_CODE.txt",
+    "TRADEMARKS.md",
+    "ASSET_LICENSES.md",
+    "THIRD_PARTY_NOTICES.txt",
+)
+LEGAL_DOCUMENTS = tuple(PROJECT_ROOT / name for name in LEGAL_DOCUMENT_NAMES)
 BRAND_ASSET_NAMES = (
     "PROS.ico",
     "PROS-Logo.png",
@@ -19,15 +28,19 @@ BRAND_ASSETS = tuple(PROJECT_ROOT / "assets" / name for name in BRAND_ASSET_NAME
 
 if not ENTRY_POINT.is_file():
     raise FileNotFoundError(f"Application entry point not found: {ENTRY_POINT}")
-if not NOTICES.is_file():
-    raise FileNotFoundError(f"Third-party notices not found: {NOTICES}")
 if not VERSION_INFO.is_file():
     raise FileNotFoundError(f"Windows version resource not found: {VERSION_INFO}")
+if not BUILD_INFO.is_file():
+    raise FileNotFoundError(f"Build provenance metadata not found: {BUILD_INFO}")
+for document in LEGAL_DOCUMENTS:
+    if not document.is_file():
+        raise FileNotFoundError(f"Legal document not found: {document}")
 for brand_asset in BRAND_ASSETS:
     if not brand_asset.is_file():
         raise FileNotFoundError(f"Brand asset not found: {brand_asset}")
 
-BUNDLE_DATA = [(str(NOTICES), ".")]
+BUNDLE_DATA = [(str(document), ".") for document in LEGAL_DOCUMENTS]
+BUNDLE_DATA.append((str(BUILD_INFO), "."))
 # The ICO supplies the PE/Explorer icon and is also bundled for Tk at runtime.
 # The PNG display assets and SVG masters remain available to the header, About
 # dialog, documentation, and packaged self-test.
@@ -48,7 +61,12 @@ a = Analysis(
     hookspath=[str(PROJECT_ROOT)],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        # The generic lxml hook collects every submodule. PROS and pikepdf do
+        # not use ISO Schematron, so omit that module and its XSL/RNG payload
+        # while retaining lxml.etree/objectify and the rest of lxml.
+        "lxml.isoschematron",
+    ],
     noarchive=False,
     optimize=1,
 )

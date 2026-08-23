@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 """Executable entry point for PROS."""
 
 from __future__ import annotations
