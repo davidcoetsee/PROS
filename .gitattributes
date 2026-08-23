@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: MPL-2.0
+
+# Brand hashes are release-integrity inputs. Keep their bytes identical on
+# Windows and Unix checkouts instead of allowing Git to rewrite line endings.
+assets/*.svg text eol=lf
+assets/*.png binary
+assets/*.ico binary
