@@ -25,6 +25,11 @@ BRAND_ASSET_NAMES = (
     "PROS-App-Icon.svg",
 )
 BRAND_ASSETS = tuple(PROJECT_ROOT / "assets" / name for name in BRAND_ASSET_NAMES)
+REDUNDANT_WINDOWS_API_SET_CONTRACTS = {
+    "api-ms-win-core-fibers-l1-1-1.dll",
+    "api-ms-win-core-kernel32-legacy-l1-1-1.dll",
+    "api-ms-win-core-sysinfo-l1-2-0.dll",
+}
 
 if not ENTRY_POINT.is_file():
     raise FileNotFoundError(f"Application entry point not found: {ENTRY_POINT}")
@@ -70,6 +75,18 @@ a = Analysis(
     noarchive=False,
     optimize=1,
 )
+
+# Windows 10 and later resolve api-ms-win-* names through the OS API-set
+# schema; they are virtual contracts rather than implementation DLLs. The
+# GitHub Windows Server Python toolcache exposes three physical downlevel
+# forwarders that desktop Python does not, so remove only those redundant
+# aliases to keep the audited one-file payload identical across builders.
+# https://learn.microsoft.com/windows/win32/apiindex/windows-apisets
+a.binaries = [
+    entry
+    for entry in a.binaries
+    if Path(entry[0]).name.casefold() not in REDUNDANT_WINDOWS_API_SET_CONTRACTS
+]
 
 pyz = PYZ(a.pure)
 

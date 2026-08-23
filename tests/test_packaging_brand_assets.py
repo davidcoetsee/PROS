@@ -75,6 +75,9 @@ def test_audited_frozen_manifest_covers_required_and_forbidden_payloads() -> Non
         "RNG2Schtrn",
         "XSD2Schtrn",
         "PIL\\_imagingft",
+        "api-ms-win-core-fibers-l1-1-1.dll",
+        "api-ms-win-core-kernel32-legacy-l1-1-1.dll",
+        "api-ms-win-core-sysinfo-l1-2-0.dll",
     )
     assert not any(marker.casefold() in name.casefold() for marker in forbidden_markers for name in all_names)
 
@@ -417,6 +420,8 @@ def test_v151_packaging_metadata_requires_every_brand_and_legal_asset() -> None:
         assert f'"{document_name}"' in spec_text
     assert "icon=str(ICON)" in spec_text
     assert '"BUILD_INFO.json"' in spec_text
+    assert "REDUNDANT_WINDOWS_API_SET_CONTRACTS" in spec_text
+    assert "a.binaries = [" in spec_text
 
     version_text = (PROJECT_ROOT / "packaging" / "version_info.txt").read_text(
         encoding="utf-8"
