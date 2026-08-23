@@ -26,6 +26,69 @@ EXPECTED_ASSET_NAMES = {
 }
 
 
+def test_audited_frozen_manifest_covers_required_and_forbidden_payloads() -> None:
+    manifest = json.loads(
+        (PROJECT_ROOT / "packaging" / "frozen_archive_manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert manifest["schema_version"] == 1
+    assert manifest["pros_version"] == __version__
+    assert manifest["pyinstaller_version"] == "6.22.1"
+
+    inventory = manifest["archive_inventory"]
+    outer_names = {entry["name"] for entry in inventory["carchive_entries"]}
+    pyz_names = {
+        entry["name"]
+        for entries in inventory["pyz_modules"].values()
+        for entry in entries
+    }
+    all_names = outer_names | pyz_names
+
+    assert {
+        "ASSET_LICENSES.md",
+        "BUILD_INFO.json",
+        "LICENSE",
+        "SOURCE_CODE.txt",
+        "THIRD_PARTY_NOTICES.txt",
+        "TRADEMARKS.md",
+        "assets\\PROS-App-Icon.png",
+        "assets\\PROS-App-Icon.svg",
+        "assets\\PROS-Logo.png",
+        "assets\\PROS-Logo.svg",
+        "assets\\PROS.ico",
+        "PIL\\_imagingtk.cp313-win_amd64.pyd",
+        "_tkinter.pyd",
+        "pikepdf\\_core.cp313-win_amd64.pyd",
+        "tcl86t.dll",
+        "tk86t.dll",
+    } <= outer_names
+
+    dnd_names = {
+        name for name in outer_names if name.startswith("tkinterdnd2\\tkdnd\\")
+    }
+    assert len(dnd_names) == 9
+    assert all(name.startswith("tkinterdnd2\\tkdnd\\win-x64\\") for name in dnd_names)
+
+    forbidden_markers = (
+        "lxml.isoschematron",
+        "RNG2Schtrn",
+        "XSD2Schtrn",
+        "PIL\\_imagingft",
+    )
+    assert not any(marker.casefold() in name.casefold() for marker in forbidden_markers for name in all_names)
+
+    warning_lines = [
+        line
+        for line in (
+            PROJECT_ROOT / "packaging" / "pyinstaller-warning-allowlist.txt"
+        ).read_text(encoding="utf-8").splitlines()
+        if line and not line.startswith("#")
+    ]
+    assert len(warning_lines) == 44
+    assert "excluded module named lxml.isoschematron" in warning_lines
+
+
 def test_source_brand_assets_match_release_manifest() -> None:
     report = selftest._inspect_brand_assets()
     assert Path(report["directory"]) == PROJECT_ROOT / "assets"
@@ -328,6 +391,7 @@ def test_release_scripts_bind_exe_environment_source_commit_and_tag() -> None:
     assert "WaitForExit(180000)" in artifact_text
     assert "build_info.git_commit -ne $ExpectedCommit" in artifact_text
     assert "runtime_inventory.pillow_native" in artifact_text
+    assert "unused FreeType extension" in artifact_text
     assert 'pros = $ExpectedVersion' in artifact_text
 
     workflow_text = (

@@ -1,0 +1,5962 @@
+{
+  "archive_inventory": {
+    "base_library_zip": {
+      "base_library.zip": [
+        "_collections_abc.pyc",
+        "_weakrefset.pyc",
+        "abc.pyc",
+        "codecs.pyc",
+        "collections/__init__.pyc",
+        "copyreg.pyc",
+        "encodings/__init__.pyc",
+        "encodings/aliases.pyc",
+        "encodings/ascii.pyc",
+        "encodings/base64_codec.pyc",
+        "encodings/big5.pyc",
+        "encodings/big5hkscs.pyc",
+        "encodings/bz2_codec.pyc",
+        "encodings/charmap.pyc",
+        "encodings/cp037.pyc",
+        "encodings/cp1006.pyc",
+        "encodings/cp1026.pyc",
+        "encodings/cp1125.pyc",
+        "encodings/cp1140.pyc",
+        "encodings/cp1250.pyc",
+        "encodings/cp1251.pyc",
+        "encodings/cp1252.pyc",
+        "encodings/cp1253.pyc",
+        "encodings/cp1254.pyc",
+        "encodings/cp1255.pyc",
+        "encodings/cp1256.pyc",
+        "encodings/cp1257.pyc",
+        "encodings/cp1258.pyc",
+        "encodings/cp273.pyc",
+        "encodings/cp424.pyc",
+        "encodings/cp437.pyc",
+        "encodings/cp500.pyc",
+        "encodings/cp720.pyc",
+        "encodings/cp737.pyc",
+        "encodings/cp775.pyc",
+        "encodings/cp850.pyc",
+        "encodings/cp852.pyc",
+        "encodings/cp855.pyc",
+        "encodings/cp856.pyc",
+        "encodings/cp857.pyc",
+        "encodings/cp858.pyc",
+        "encodings/cp860.pyc",
+        "encodings/cp861.pyc",
+        "encodings/cp862.pyc",
+        "encodings/cp863.pyc",
+        "encodings/cp864.pyc",
+        "encodings/cp865.pyc",
+        "encodings/cp866.pyc",
+        "encodings/cp869.pyc",
+        "encodings/cp874.pyc",
+        "encodings/cp875.pyc",
+        "encodings/cp932.pyc",
+        "encodings/cp949.pyc",
+        "encodings/cp950.pyc",
+        "encodings/euc_jis_2004.pyc",
+        "encodings/euc_jisx0213.pyc",
+        "encodings/euc_jp.pyc",
+        "encodings/euc_kr.pyc",
+        "encodings/gb18030.pyc",
+        "encodings/gb2312.pyc",
+        "encodings/gbk.pyc",
+        "encodings/hex_codec.pyc",
+        "encodings/hp_roman8.pyc",
+        "encodings/hz.pyc",
+        "encodings/idna.pyc",
+        "encodings/iso2022_jp.pyc",
+        "encodings/iso2022_jp_1.pyc",
+        "encodings/iso2022_jp_2.pyc",
+        "encodings/iso2022_jp_2004.pyc",
+        "encodings/iso2022_jp_3.pyc",
+        "encodings/iso2022_jp_ext.pyc",
+        "encodings/iso2022_kr.pyc",
+        "encodings/iso8859_1.pyc",
+        "encodings/iso8859_10.pyc",
+        "encodings/iso8859_11.pyc",
+        "encodings/iso8859_13.pyc",
+        "encodings/iso8859_14.pyc",
+        "encodings/iso8859_15.pyc",
+        "encodings/iso8859_16.pyc",
+        "encodings/iso8859_2.pyc",
+        "encodings/iso8859_3.pyc",
+        "encodings/iso8859_4.pyc",
+        "encodings/iso8859_5.pyc",
+        "encodings/iso8859_6.pyc",
+        "encodings/iso8859_7.pyc",
+        "encodings/iso8859_8.pyc",
+        "encodings/iso8859_9.pyc",
+        "encodings/johab.pyc",
+        "encodings/koi8_r.pyc",
+        "encodings/koi8_t.pyc",
+        "encodings/koi8_u.pyc",
+        "encodings/kz1048.pyc",
+        "encodings/latin_1.pyc",
+        "encodings/mac_arabic.pyc",
+        "encodings/mac_croatian.pyc",
+        "encodings/mac_cyrillic.pyc",
+        "encodings/mac_farsi.pyc",
+        "encodings/mac_greek.pyc",
+        "encodings/mac_iceland.pyc",
+        "encodings/mac_latin2.pyc",
+        "encodings/mac_roman.pyc",
+        "encodings/mac_romanian.pyc",
+        "encodings/mac_turkish.pyc",
+        "encodings/mbcs.pyc",
+        "encodings/oem.pyc",
+        "encodings/palmos.pyc",
+        "encodings/ptcp154.pyc",
+        "encodings/punycode.pyc",
+        "encodings/quopri_codec.pyc",
+        "encodings/raw_unicode_escape.pyc",
+        "encodings/rot_13.pyc",
+        "encodings/shift_jis.pyc",
+        "encodings/shift_jis_2004.pyc",
+        "encodings/shift_jisx0213.pyc",
+        "encodings/tis_620.pyc",
+        "encodings/undefined.pyc",
+        "encodings/unicode_escape.pyc",
+        "encodings/utf_16.pyc",
+        "encodings/utf_16_be.pyc",
+        "encodings/utf_16_le.pyc",
+        "encodings/utf_32.pyc",
+        "encodings/utf_32_be.pyc",
+        "encodings/utf_32_le.pyc",
+        "encodings/utf_7.pyc",
+        "encodings/utf_8.pyc",
+        "encodings/utf_8_sig.pyc",
+        "encodings/uu_codec.pyc",
+        "encodings/zlib_codec.pyc",
+        "enum.pyc",
+        "functools.pyc",
+        "genericpath.pyc",
+        "heapq.pyc",
+        "io.pyc",
+        "keyword.pyc",
+        "linecache.pyc",
+        "locale.pyc",
+        "ntpath.pyc",
+        "operator.pyc",
+        "os.pyc",
+        "posixpath.pyc",
+        "re/__init__.pyc",
+        "re/_casefix.pyc",
+        "re/_compiler.pyc",
+        "re/_constants.pyc",
+        "re/_parser.pyc",
+        "reprlib.pyc",
+        "sre_compile.pyc",
+        "sre_constants.pyc",
+        "sre_parse.pyc",
+        "stat.pyc",
+        "traceback.pyc",
+        "types.pyc",
+        "warnings.pyc",
+        "weakref.pyc"
+      ]
+    },
+    "carchive_entries": [
+      {
+        "name": "ASSET_LICENSES.md",
+        "typecode": "b"
+      },
+      {
+        "name": "BUILD_INFO.json",
+        "typecode": "b"
+      },
+      {
+        "name": "LICENSE",
+        "typecode": "b"
+      },
+      {
+        "name": "PIL\\_avif.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "PIL\\_imaging.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "PIL\\_imagingcms.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "PIL\\_imagingmath.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "PIL\\_imagingtk.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "PIL\\_webp.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "PYZ.pyz",
+        "typecode": "z"
+      },
+      {
+        "name": "SOURCE_CODE.txt",
+        "typecode": "b"
+      },
+      {
+        "name": "THIRD_PARTY_NOTICES.txt",
+        "typecode": "b"
+      },
+      {
+        "name": "TRADEMARKS.md",
+        "typecode": "b"
+      },
+      {
+        "name": "VCRUNTIME140.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "VCRUNTIME140_1.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "_asyncio.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_bz2.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_ctypes.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_decimal.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_elementtree.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_hashlib.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_lzma.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_multiprocessing.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_overlapped.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_queue.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_socket.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_ssl.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\auto.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\clock.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\ascii.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\big5.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cns11643.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1250.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1251.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1252.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1253.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1254.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1255.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1256.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1257.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp1258.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp437.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp737.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp775.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp850.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp852.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp855.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp857.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp860.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp861.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp862.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp863.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp864.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp865.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp866.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp869.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp874.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp932.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp936.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp949.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\cp950.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\dingbats.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\ebcdic.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\euc-cn.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\euc-jp.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\euc-kr.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\gb12345.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\gb1988.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\gb2312-raw.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\gb2312.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso2022-jp.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso2022-kr.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso2022.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-1.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-10.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-11.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-13.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-14.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-15.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-16.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-2.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-3.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-4.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-5.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-6.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-7.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-8.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\iso8859-9.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\jis0201.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\jis0208.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\jis0212.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\koi8-r.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\koi8-ru.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\koi8-t.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\koi8-u.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\ksc5601.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macCentEuro.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macCroatian.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macCyrillic.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macDingbats.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macGreek.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macIceland.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macJapan.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macRoman.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macRomania.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macThai.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macTurkish.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\macUkraine.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\shiftjis.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\symbol.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\encoding\\tis-620.enc",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\history.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\http1.0\\http.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\http1.0\\pkgIndex.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\init.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\af.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\af_za.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ar.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ar_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ar_jo.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ar_lb.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ar_sy.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\be.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\bg.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\bn.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\bn_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ca.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\cs.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\da.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\de.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\de_at.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\de_be.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\el.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_au.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_be.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_bw.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_ca.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_gb.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_hk.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_ie.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_nz.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_ph.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_sg.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_za.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\en_zw.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\eo.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_ar.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_bo.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_cl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_co.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_cr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_do.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_ec.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_gt.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_hn.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_mx.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_ni.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_pa.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_pe.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_pr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_py.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_sv.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_uy.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\es_ve.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\et.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\eu.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\eu_es.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fa.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fa_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fa_ir.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fi.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fo.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fo_fo.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fr_be.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fr_ca.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\fr_ch.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ga.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ga_ie.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\gl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\gl_es.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\gv.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\gv_gb.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\he.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\hi.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\hi_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\hr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\hu.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\id.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\id_id.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\is.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\it.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\it_ch.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ja.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\kl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\kl_gl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ko.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ko_kr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\kok.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\kok_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\kw.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\kw_gb.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\lt.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\lv.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\mk.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\mr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\mr_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ms.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ms_my.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\mt.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\nb.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\nl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\nl_be.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\nn.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\pl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\pt.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\pt_br.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ro.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ru.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ru_ua.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\sh.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\sk.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\sl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\sq.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\sr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\sv.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\sw.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ta.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\ta_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\te.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\te_in.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\th.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\tr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\uk.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\vi.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\zh.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\zh_cn.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\zh_hk.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\zh_sg.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\msgs\\zh_tw.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\opt0.4\\optparse.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\opt0.4\\pkgIndex.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\package.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\parray.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\safe.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tclIndex",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tm.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Abidjan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Accra",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Addis_Ababa",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Algiers",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Asmara",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Asmera",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Bamako",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Bangui",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Banjul",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Bissau",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Blantyre",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Brazzaville",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Bujumbura",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Cairo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Casablanca",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Ceuta",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Conakry",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Dakar",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Dar_es_Salaam",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Djibouti",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Douala",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\El_Aaiun",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Freetown",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Gaborone",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Harare",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Johannesburg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Juba",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Kampala",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Khartoum",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Kigali",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Kinshasa",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Lagos",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Libreville",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Lome",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Luanda",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Lubumbashi",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Lusaka",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Malabo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Maputo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Maseru",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Mbabane",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Mogadishu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Monrovia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Nairobi",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Ndjamena",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Niamey",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Nouakchott",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Ouagadougou",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Porto-Novo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Sao_Tome",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Timbuktu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Tripoli",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Tunis",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Africa\\Windhoek",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Adak",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Anchorage",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Anguilla",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Antigua",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Araguaina",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Buenos_Aires",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Catamarca",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\ComodRivadavia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Cordoba",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Jujuy",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\La_Rioja",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Mendoza",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Rio_Gallegos",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Salta",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\San_Juan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\San_Luis",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Tucuman",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Argentina\\Ushuaia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Aruba",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Asuncion",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Atikokan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Atka",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Bahia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Bahia_Banderas",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Barbados",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Belem",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Belize",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Blanc-Sablon",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Boa_Vista",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Bogota",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Boise",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Buenos_Aires",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Cambridge_Bay",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Campo_Grande",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Cancun",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Caracas",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Catamarca",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Cayenne",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Cayman",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Chicago",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Chihuahua",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Ciudad_Juarez",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Coral_Harbour",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Cordoba",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Costa_Rica",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Creston",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Cuiaba",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Curacao",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Danmarkshavn",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Dawson",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Dawson_Creek",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Denver",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Detroit",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Dominica",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Edmonton",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Eirunepe",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\El_Salvador",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Ensenada",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Fort_Nelson",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Fort_Wayne",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Fortaleza",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Glace_Bay",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Godthab",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Goose_Bay",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Grand_Turk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Grenada",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Guadeloupe",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Guatemala",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Guayaquil",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Guyana",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Halifax",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Havana",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Hermosillo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indiana\\Indianapolis",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indiana\\Knox",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indiana\\Marengo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indiana\\Petersburg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indiana\\Tell_City",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indiana\\Vevay",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indiana\\Vincennes",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indiana\\Winamac",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Indianapolis",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Inuvik",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Iqaluit",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Jamaica",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Jujuy",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Juneau",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Kentucky\\Louisville",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Kentucky\\Monticello",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Knox_IN",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Kralendijk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\La_Paz",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Lima",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Los_Angeles",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Louisville",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Lower_Princes",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Maceio",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Managua",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Manaus",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Marigot",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Martinique",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Matamoros",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Mazatlan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Mendoza",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Menominee",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Merida",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Metlakatla",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Mexico_City",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Miquelon",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Moncton",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Monterrey",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Montevideo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Montreal",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Montserrat",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Nassau",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\New_York",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Nipigon",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Nome",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Noronha",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\North_Dakota\\Beulah",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\North_Dakota\\Center",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\North_Dakota\\New_Salem",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Nuuk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Ojinaga",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Panama",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Pangnirtung",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Paramaribo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Phoenix",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Port-au-Prince",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Port_of_Spain",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Porto_Acre",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Porto_Velho",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Puerto_Rico",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Punta_Arenas",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Rainy_River",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Rankin_Inlet",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Recife",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Regina",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Resolute",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Rio_Branco",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Rosario",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Santa_Isabel",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Santarem",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Santiago",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Santo_Domingo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Sao_Paulo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Scoresbysund",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Shiprock",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Sitka",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\St_Barthelemy",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\St_Johns",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\St_Kitts",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\St_Lucia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\St_Thomas",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\St_Vincent",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Swift_Current",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Tegucigalpa",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Thule",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Thunder_Bay",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Tijuana",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Toronto",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Tortola",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Vancouver",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Virgin",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Whitehorse",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Winnipeg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Yakutat",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\America\\Yellowknife",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Casey",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Davis",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\DumontDUrville",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Macquarie",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Mawson",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\McMurdo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Palmer",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Rothera",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\South_Pole",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Syowa",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Troll",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Antarctica\\Vostok",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Arctic\\Longyearbyen",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Aden",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Almaty",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Amman",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Anadyr",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Aqtau",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Aqtobe",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Ashgabat",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Ashkhabad",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Atyrau",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Baghdad",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Bahrain",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Baku",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Bangkok",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Barnaul",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Beirut",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Bishkek",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Brunei",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Calcutta",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Chita",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Choibalsan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Chongqing",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Chungking",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Colombo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Dacca",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Damascus",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Dhaka",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Dili",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Dubai",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Dushanbe",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Famagusta",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Gaza",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Harbin",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Hebron",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Ho_Chi_Minh",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Hong_Kong",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Hovd",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Irkutsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Istanbul",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Jakarta",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Jayapura",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Jerusalem",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Kabul",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Kamchatka",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Karachi",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Kashgar",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Kathmandu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Katmandu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Khandyga",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Kolkata",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Krasnoyarsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Kuala_Lumpur",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Kuching",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Kuwait",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Macao",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Macau",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Magadan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Makassar",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Manila",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Muscat",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Nicosia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Novokuznetsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Novosibirsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Omsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Oral",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Phnom_Penh",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Pontianak",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Pyongyang",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Qatar",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Qostanay",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Qyzylorda",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Rangoon",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Riyadh",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Saigon",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Sakhalin",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Samarkand",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Seoul",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Shanghai",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Singapore",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Srednekolymsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Taipei",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Tashkent",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Tbilisi",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Tehran",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Tel_Aviv",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Thimbu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Thimphu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Tokyo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Tomsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Ujung_Pandang",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Ulaanbaatar",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Ulan_Bator",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Urumqi",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Ust-Nera",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Vientiane",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Vladivostok",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Yakutsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Yangon",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Yekaterinburg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Asia\\Yerevan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Azores",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Bermuda",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Canary",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Cape_Verde",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Faeroe",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Faroe",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Jan_Mayen",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Madeira",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Reykjavik",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\South_Georgia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\St_Helena",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Atlantic\\Stanley",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\ACT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Adelaide",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Brisbane",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Broken_Hill",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Canberra",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Currie",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Darwin",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Eucla",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Hobart",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\LHI",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Lindeman",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Lord_Howe",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Melbourne",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\NSW",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\North",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Perth",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Queensland",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\South",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Sydney",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Tasmania",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Victoria",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\West",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Australia\\Yancowinna",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Brazil\\Acre",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Brazil\\DeNoronha",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Brazil\\East",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Brazil\\West",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\CET",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\CST6CDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Canada\\Atlantic",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Canada\\Central",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Canada\\Eastern",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Canada\\Mountain",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Canada\\Newfoundland",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Canada\\Pacific",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Canada\\Saskatchewan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Canada\\Yukon",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Chile\\Continental",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Chile\\EasterIsland",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Cuba",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\EET",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\EST",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\EST5EDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Egypt",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Eire",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+0",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+1",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+10",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+11",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+12",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+2",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+3",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+4",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+5",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+6",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+7",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+8",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT+9",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-0",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-1",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-10",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-11",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-12",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-13",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-14",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-2",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-3",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-4",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-5",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-6",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-7",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-8",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT-9",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\GMT0",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\Greenwich",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\UCT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\UTC",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\Universal",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Etc\\Zulu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Amsterdam",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Andorra",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Astrakhan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Athens",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Belfast",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Belgrade",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Berlin",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Bratislava",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Brussels",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Bucharest",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Budapest",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Busingen",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Chisinau",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Copenhagen",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Dublin",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Gibraltar",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Guernsey",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Helsinki",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Isle_of_Man",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Istanbul",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Jersey",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Kaliningrad",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Kiev",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Kirov",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Kyiv",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Lisbon",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Ljubljana",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\London",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Luxembourg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Madrid",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Malta",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Mariehamn",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Minsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Monaco",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Moscow",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Nicosia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Oslo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Paris",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Podgorica",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Prague",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Riga",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Rome",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Samara",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\San_Marino",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Sarajevo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Saratov",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Simferopol",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Skopje",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Sofia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Stockholm",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Tallinn",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Tirane",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Tiraspol",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Ulyanovsk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Uzhgorod",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Vaduz",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Vatican",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Vienna",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Vilnius",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Volgograd",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Warsaw",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Zagreb",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Zaporozhye",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Europe\\Zurich",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\GB",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\GB-Eire",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\GMT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\GMT+0",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\GMT-0",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\GMT0",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Greenwich",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\HST",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Hongkong",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Iceland",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Antananarivo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Chagos",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Christmas",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Cocos",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Comoro",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Kerguelen",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Mahe",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Maldives",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Mauritius",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Mayotte",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Indian\\Reunion",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Iran",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Israel",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Jamaica",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Japan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Kwajalein",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Libya",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\MET",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\MST",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\MST7MDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Mexico\\BajaNorte",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Mexico\\BajaSur",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Mexico\\General",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\NZ",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\NZ-CHAT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Navajo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\PRC",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\PST8PDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Apia",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Auckland",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Bougainville",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Chatham",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Chuuk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Easter",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Efate",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Enderbury",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Fakaofo",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Fiji",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Funafuti",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Galapagos",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Gambier",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Guadalcanal",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Guam",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Honolulu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Johnston",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Kanton",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Kiritimati",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Kosrae",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Kwajalein",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Majuro",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Marquesas",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Midway",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Nauru",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Niue",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Norfolk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Noumea",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Pago_Pago",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Palau",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Pitcairn",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Pohnpei",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Ponape",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Port_Moresby",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Rarotonga",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Saipan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Samoa",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Tahiti",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Tarawa",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Tongatapu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Truk",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Wake",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Wallis",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Pacific\\Yap",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Poland",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Portugal",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\ROC",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\ROK",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Singapore",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\AST4",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\AST4ADT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\CST6",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\CST6CDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\EST5",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\EST5EDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\HST10",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\MST7",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\MST7MDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\PST8",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\PST8PDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\YST9",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\SystemV\\YST9YDT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Turkey",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\UCT",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Alaska",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Aleutian",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Arizona",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Central",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\East-Indiana",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Eastern",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Hawaii",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Indiana-Starke",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Michigan",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Mountain",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Pacific",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\US\\Samoa",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\UTC",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Universal",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\W-SU",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\WET",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\tzdata\\Zulu",
+        "typecode": "b"
+      },
+      {
+        "name": "_tcl_data\\word.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\bgerror.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\button.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\choosedir.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\clrpick.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\comdlg.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\console.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\dialog.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\entry.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\focus.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\fontchooser.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\iconlist.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\icons.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\README",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\logo.eps",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\logo100.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\logo64.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\logoLarge.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\logoMed.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\pwrdLogo.eps",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\pwrdLogo100.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\pwrdLogo150.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\pwrdLogo175.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\pwrdLogo200.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\pwrdLogo75.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\images\\tai-ku.gif",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\license.terms",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\listbox.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\megawidget.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\menu.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\mkpsenc.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgbox.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\cs.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\da.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\de.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\el.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\en.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\en_gb.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\eo.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\es.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\fi.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\fr.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\hu.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\it.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\nl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\pl.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\pt.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\ru.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\sv.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\msgs\\zh_cn.msg",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\obsolete.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\optMenu.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\palette.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\panedwindow.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\pkgIndex.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\safetk.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\scale.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\scrlbar.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\spinbox.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\tclIndex",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\tearoff.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\text.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\tk.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\tkfbox.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\altTheme.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\aquaTheme.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\button.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\clamTheme.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\classicTheme.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\combobox.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\cursors.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\defaults.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\entry.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\fonts.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\menubutton.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\notebook.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\panedwindow.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\progress.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\scale.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\scrollbar.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\sizegrip.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\spinbox.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\treeview.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\ttk.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\utils.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\vistaTheme.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\winTheme.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\ttk\\xpTheme.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\unsupported.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tk_data\\xmfbox.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "_tkinter.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_uuid.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "_wmi.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-console-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-datetime-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-debug-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-errorhandling-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-fibers-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-file-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-file-l1-2-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-file-l2-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-handle-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-heap-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-interlocked-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-libraryloader-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-localization-l1-2-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-memory-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-namedpipe-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-processenvironment-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-processthreads-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-processthreads-l1-1-1.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-profile-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-rtlsupport-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-string-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-synch-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-synch-l1-2-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-sysinfo-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-timezone-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-core-util-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-conio-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-convert-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-environment-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-filesystem-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-heap-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-locale-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-math-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-process-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-runtime-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-stdio-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-string-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-time-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "api-ms-win-crt-utility-l1-1-0.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "assets\\PROS-App-Icon.png",
+        "typecode": "b"
+      },
+      {
+        "name": "assets\\PROS-App-Icon.svg",
+        "typecode": "b"
+      },
+      {
+        "name": "assets\\PROS-Logo.png",
+        "typecode": "b"
+      },
+      {
+        "name": "assets\\PROS-Logo.svg",
+        "typecode": "b"
+      },
+      {
+        "name": "assets\\PROS.ico",
+        "typecode": "b"
+      },
+      {
+        "name": "base_library.zip",
+        "typecode": "b"
+      },
+      {
+        "name": "libcrypto-3.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "libffi-8.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "libssl-3.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "lxml\\_elementpath.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "lxml\\builder.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "lxml\\etree.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "lxml\\html\\_difflib.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "lxml\\html\\diff.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "lxml\\objectify.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "lxml\\sax.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "main",
+        "typecode": "s"
+      },
+      {
+        "name": "pikepdf.libs\\msvcp140-0f885b509a685d2bbfa652fed26b5fb3.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "pikepdf.libs\\qpdf30-eca0c1670a8d0fd8a8bc678bfc22fc30.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "pikepdf\\_core.cp313-win_amd64.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "pyexpat.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "pyi_rth__tkinter",
+        "typecode": "s"
+      },
+      {
+        "name": "pyi_rth_inspect",
+        "typecode": "s"
+      },
+      {
+        "name": "pyi_rth_multiprocessing",
+        "typecode": "s"
+      },
+      {
+        "name": "pyi_rth_pkgutil",
+        "typecode": "s"
+      },
+      {
+        "name": "pyiboot01_bootstrap",
+        "typecode": "s"
+      },
+      {
+        "name": "pyimod01_archive",
+        "typecode": "m"
+      },
+      {
+        "name": "pyimod02_importers",
+        "typecode": "m"
+      },
+      {
+        "name": "pyimod03_ctypes",
+        "typecode": "m"
+      },
+      {
+        "name": "pyimod04_pywin32",
+        "typecode": "m"
+      },
+      {
+        "name": "python313.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "select.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "struct",
+        "typecode": "m"
+      },
+      {
+        "name": "tcl86t.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "tcl8\\8.4\\platform-1.0.19.tm",
+        "typecode": "b"
+      },
+      {
+        "name": "tcl8\\8.4\\platform\\shell-1.1.4.tm",
+        "typecode": "b"
+      },
+      {
+        "name": "tcl8\\8.5\\msgcat-1.6.1.tm",
+        "typecode": "b"
+      },
+      {
+        "name": "tcl8\\8.5\\tcltest-2.5.8.tm",
+        "typecode": "b"
+      },
+      {
+        "name": "tcl8\\8.6\\http-2.9.8.tm",
+        "typecode": "b"
+      },
+      {
+        "name": "tk86t.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\libtkdnd2.10.1.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\pkgIndex.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\tkdnd.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\tkdnd_compat.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\tkdnd_generic.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\tkdnd_macosx.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\tkdnd_unix.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\tkdnd_utils.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "tkinterdnd2\\tkdnd\\win-x64\\tkdnd_windows.tcl",
+        "typecode": "b"
+      },
+      {
+        "name": "ucrtbase.dll",
+        "typecode": "b"
+      },
+      {
+        "name": "unicodedata.pyd",
+        "typecode": "b"
+      },
+      {
+        "name": "zlib1.dll",
+        "typecode": "b"
+      }
+    ],
+    "carchive_options": [
+      "pyi-contents-directory _internal"
+    ],
+    "pyz_modules": {
+      "PYZ.pyz": [
+        {
+          "name": "PIL",
+          "typecode": 1
+        },
+        {
+          "name": "PIL.AvifImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.BlpImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.BmpImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.BufrStubImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.CurImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.DcxImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.DdsImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.EpsImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ExifTags",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.FitsImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.FliImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.FpxImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.FtexImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.GbrImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.GifImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.GimpGradientFile",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.GimpPaletteFile",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.GribStubImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.Hdf5StubImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.IcnsImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.IcoImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.Image",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageChops",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageCms",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageColor",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageFile",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageFilter",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageMath",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageMode",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageOps",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImagePalette",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageQt",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageSequence",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageShow",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageTk",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImageWin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.ImtImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.IptcImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.Jpeg2KImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.JpegImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.JpegPresets",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.McIdasImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.MicImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.MpegImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.MpoImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.MspImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PaletteFile",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PalmImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PcdImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PcxImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PdfImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PdfParser",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PixarImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PngImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PpmImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.PsdImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.QoiImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.SgiImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.SpiderImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.SunImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.TgaImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.TiffImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.TiffTags",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.WebPImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.WmfImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.XVThumbImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.XbmImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.XpmImagePlugin",
+          "typecode": 0
+        },
+        {
+          "name": "PIL._binary",
+          "typecode": 0
+        },
+        {
+          "name": "PIL._deprecate",
+          "typecode": 0
+        },
+        {
+          "name": "PIL._typing",
+          "typecode": 0
+        },
+        {
+          "name": "PIL._util",
+          "typecode": 0
+        },
+        {
+          "name": "PIL._version",
+          "typecode": 0
+        },
+        {
+          "name": "PIL.features",
+          "typecode": 0
+        },
+        {
+          "name": "__future__",
+          "typecode": 0
+        },
+        {
+          "name": "_aix_support",
+          "typecode": 0
+        },
+        {
+          "name": "_colorize",
+          "typecode": 0
+        },
+        {
+          "name": "_compat_pickle",
+          "typecode": 0
+        },
+        {
+          "name": "_compression",
+          "typecode": 0
+        },
+        {
+          "name": "_opcode_metadata",
+          "typecode": 0
+        },
+        {
+          "name": "_py_abc",
+          "typecode": 0
+        },
+        {
+          "name": "_pydatetime",
+          "typecode": 0
+        },
+        {
+          "name": "_pydecimal",
+          "typecode": 0
+        },
+        {
+          "name": "_pyrepl",
+          "typecode": 1
+        },
+        {
+          "name": "_pyrepl.pager",
+          "typecode": 0
+        },
+        {
+          "name": "_strptime",
+          "typecode": 0
+        },
+        {
+          "name": "_threading_local",
+          "typecode": 0
+        },
+        {
+          "name": "argparse",
+          "typecode": 0
+        },
+        {
+          "name": "ast",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio",
+          "typecode": 1
+        },
+        {
+          "name": "asyncio.base_events",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.base_futures",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.base_subprocess",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.base_tasks",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.constants",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.coroutines",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.events",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.exceptions",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.format_helpers",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.futures",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.locks",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.log",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.mixins",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.proactor_events",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.protocols",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.queues",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.runners",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.selector_events",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.sslproto",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.staggered",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.streams",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.subprocess",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.taskgroups",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.tasks",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.threads",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.timeouts",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.transports",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.trsock",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.unix_events",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.windows_events",
+          "typecode": 0
+        },
+        {
+          "name": "asyncio.windows_utils",
+          "typecode": 0
+        },
+        {
+          "name": "base64",
+          "typecode": 0
+        },
+        {
+          "name": "bdb",
+          "typecode": 0
+        },
+        {
+          "name": "bisect",
+          "typecode": 0
+        },
+        {
+          "name": "bz2",
+          "typecode": 0
+        },
+        {
+          "name": "calendar",
+          "typecode": 0
+        },
+        {
+          "name": "cmd",
+          "typecode": 0
+        },
+        {
+          "name": "code",
+          "typecode": 0
+        },
+        {
+          "name": "codeop",
+          "typecode": 0
+        },
+        {
+          "name": "colorsys",
+          "typecode": 0
+        },
+        {
+          "name": "concurrent",
+          "typecode": 1
+        },
+        {
+          "name": "concurrent.futures",
+          "typecode": 1
+        },
+        {
+          "name": "concurrent.futures._base",
+          "typecode": 0
+        },
+        {
+          "name": "concurrent.futures.process",
+          "typecode": 0
+        },
+        {
+          "name": "concurrent.futures.thread",
+          "typecode": 0
+        },
+        {
+          "name": "contextlib",
+          "typecode": 0
+        },
+        {
+          "name": "contextvars",
+          "typecode": 0
+        },
+        {
+          "name": "copy",
+          "typecode": 0
+        },
+        {
+          "name": "csv",
+          "typecode": 0
+        },
+        {
+          "name": "ctypes",
+          "typecode": 1
+        },
+        {
+          "name": "ctypes._endian",
+          "typecode": 0
+        },
+        {
+          "name": "dataclasses",
+          "typecode": 0
+        },
+        {
+          "name": "datetime",
+          "typecode": 0
+        },
+        {
+          "name": "decimal",
+          "typecode": 0
+        },
+        {
+          "name": "difflib",
+          "typecode": 0
+        },
+        {
+          "name": "dis",
+          "typecode": 0
+        },
+        {
+          "name": "doctest",
+          "typecode": 0
+        },
+        {
+          "name": "email",
+          "typecode": 1
+        },
+        {
+          "name": "email._encoded_words",
+          "typecode": 0
+        },
+        {
+          "name": "email._header_value_parser",
+          "typecode": 0
+        },
+        {
+          "name": "email._parseaddr",
+          "typecode": 0
+        },
+        {
+          "name": "email._policybase",
+          "typecode": 0
+        },
+        {
+          "name": "email.base64mime",
+          "typecode": 0
+        },
+        {
+          "name": "email.charset",
+          "typecode": 0
+        },
+        {
+          "name": "email.contentmanager",
+          "typecode": 0
+        },
+        {
+          "name": "email.encoders",
+          "typecode": 0
+        },
+        {
+          "name": "email.errors",
+          "typecode": 0
+        },
+        {
+          "name": "email.feedparser",
+          "typecode": 0
+        },
+        {
+          "name": "email.generator",
+          "typecode": 0
+        },
+        {
+          "name": "email.header",
+          "typecode": 0
+        },
+        {
+          "name": "email.headerregistry",
+          "typecode": 0
+        },
+        {
+          "name": "email.iterators",
+          "typecode": 0
+        },
+        {
+          "name": "email.message",
+          "typecode": 0
+        },
+        {
+          "name": "email.parser",
+          "typecode": 0
+        },
+        {
+          "name": "email.policy",
+          "typecode": 0
+        },
+        {
+          "name": "email.quoprimime",
+          "typecode": 0
+        },
+        {
+          "name": "email.utils",
+          "typecode": 0
+        },
+        {
+          "name": "fnmatch",
+          "typecode": 0
+        },
+        {
+          "name": "fractions",
+          "typecode": 0
+        },
+        {
+          "name": "ftplib",
+          "typecode": 0
+        },
+        {
+          "name": "getopt",
+          "typecode": 0
+        },
+        {
+          "name": "getpass",
+          "typecode": 0
+        },
+        {
+          "name": "gettext",
+          "typecode": 0
+        },
+        {
+          "name": "glob",
+          "typecode": 0
+        },
+        {
+          "name": "gzip",
+          "typecode": 0
+        },
+        {
+          "name": "hashlib",
+          "typecode": 0
+        },
+        {
+          "name": "hmac",
+          "typecode": 0
+        },
+        {
+          "name": "html",
+          "typecode": 1
+        },
+        {
+          "name": "html.entities",
+          "typecode": 0
+        },
+        {
+          "name": "http",
+          "typecode": 1
+        },
+        {
+          "name": "http.client",
+          "typecode": 0
+        },
+        {
+          "name": "http.cookiejar",
+          "typecode": 0
+        },
+        {
+          "name": "http.server",
+          "typecode": 0
+        },
+        {
+          "name": "importlib",
+          "typecode": 1
+        },
+        {
+          "name": "importlib._abc",
+          "typecode": 0
+        },
+        {
+          "name": "importlib._bootstrap",
+          "typecode": 0
+        },
+        {
+          "name": "importlib._bootstrap_external",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.abc",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.machinery",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.metadata",
+          "typecode": 1
+        },
+        {
+          "name": "importlib.metadata._adapters",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.metadata._collections",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.metadata._functools",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.metadata._itertools",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.metadata._meta",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.metadata._text",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.readers",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.resources",
+          "typecode": 1
+        },
+        {
+          "name": "importlib.resources._adapters",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.resources._common",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.resources._functional",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.resources._itertools",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.resources.abc",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.resources.readers",
+          "typecode": 0
+        },
+        {
+          "name": "importlib.util",
+          "typecode": 0
+        },
+        {
+          "name": "inspect",
+          "typecode": 0
+        },
+        {
+          "name": "ipaddress",
+          "typecode": 0
+        },
+        {
+          "name": "json",
+          "typecode": 1
+        },
+        {
+          "name": "json.decoder",
+          "typecode": 0
+        },
+        {
+          "name": "json.encoder",
+          "typecode": 0
+        },
+        {
+          "name": "json.scanner",
+          "typecode": 0
+        },
+        {
+          "name": "logging",
+          "typecode": 1
+        },
+        {
+          "name": "lxml",
+          "typecode": 1
+        },
+        {
+          "name": "lxml.ElementInclude",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.cssselect",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.doctestcompare",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html",
+          "typecode": 1
+        },
+        {
+          "name": "lxml.html.ElementSoup",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html._diffcommand",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html._html5builder",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html._setmixin",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html.builder",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html.clean",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html.defs",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html.formfill",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html.html5parser",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html.soupparser",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.html.usedoctest",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.includes",
+          "typecode": 1
+        },
+        {
+          "name": "lxml.includes.extlibs",
+          "typecode": 1
+        },
+        {
+          "name": "lxml.includes.libexslt",
+          "typecode": 1
+        },
+        {
+          "name": "lxml.includes.libxml",
+          "typecode": 1
+        },
+        {
+          "name": "lxml.includes.libxslt",
+          "typecode": 1
+        },
+        {
+          "name": "lxml.pyclasslookup",
+          "typecode": 0
+        },
+        {
+          "name": "lxml.usedoctest",
+          "typecode": 0
+        },
+        {
+          "name": "lzma",
+          "typecode": 0
+        },
+        {
+          "name": "mimetypes",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing",
+          "typecode": 1
+        },
+        {
+          "name": "multiprocessing.connection",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.context",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.dummy",
+          "typecode": 1
+        },
+        {
+          "name": "multiprocessing.dummy.connection",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.forkserver",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.heap",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.managers",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.pool",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.popen_fork",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.popen_forkserver",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.popen_spawn_posix",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.popen_spawn_win32",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.process",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.queues",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.reduction",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.resource_sharer",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.resource_tracker",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.shared_memory",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.sharedctypes",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.spawn",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.synchronize",
+          "typecode": 0
+        },
+        {
+          "name": "multiprocessing.util",
+          "typecode": 0
+        },
+        {
+          "name": "netrc",
+          "typecode": 0
+        },
+        {
+          "name": "nturl2path",
+          "typecode": 0
+        },
+        {
+          "name": "numbers",
+          "typecode": 0
+        },
+        {
+          "name": "opcode",
+          "typecode": 0
+        },
+        {
+          "name": "optparse",
+          "typecode": 0
+        },
+        {
+          "name": "packaging",
+          "typecode": 1
+        },
+        {
+          "name": "packaging.version",
+          "typecode": 0
+        },
+        {
+          "name": "pathlib",
+          "typecode": 1
+        },
+        {
+          "name": "pathlib._abc",
+          "typecode": 0
+        },
+        {
+          "name": "pathlib._local",
+          "typecode": 0
+        },
+        {
+          "name": "pdb",
+          "typecode": 0
+        },
+        {
+          "name": "pickle",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf",
+          "typecode": 1
+        },
+        {
+          "name": "pikepdf._augments",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._cpphelpers",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._exceptions",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._explicit_conv",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._io",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._methods",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._named_dests",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._page_copy",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._version",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf._xml",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.codec",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.exceptions",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.jbig2",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.jobs",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models",
+          "typecode": 1
+        },
+        {
+          "name": "pikepdf.models._cal_icc",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models._content_stream",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models._image_exceptions",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models._transcoding",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.actions",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.ctm",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.encryption",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.image",
+          "typecode": 1
+        },
+        {
+          "name": "pikepdf.models.image._bomb",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.image._classes",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.image._colorspace",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.image._extract",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.image._postprocess",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.image._shared",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.metadata",
+          "typecode": 1
+        },
+        {
+          "name": "pikepdf.models.metadata._constants",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.metadata._converters",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.metadata._core",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.metadata._docinfo",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.metadata._xmp",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.models.outlines",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.objects",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.sanitize",
+          "typecode": 0
+        },
+        {
+          "name": "pikepdf.settings",
+          "typecode": 0
+        },
+        {
+          "name": "pkgutil",
+          "typecode": 0
+        },
+        {
+          "name": "platform",
+          "typecode": 0
+        },
+        {
+          "name": "pprint",
+          "typecode": 0
+        },
+        {
+          "name": "pros",
+          "typecode": 1
+        },
+        {
+          "name": "pros.gui",
+          "typecode": 0
+        },
+        {
+          "name": "pros.models",
+          "typecode": 0
+        },
+        {
+          "name": "pros.naming",
+          "typecode": 0
+        },
+        {
+          "name": "pros.pdf_engine",
+          "typecode": 0
+        },
+        {
+          "name": "pros.selftest",
+          "typecode": 0
+        },
+        {
+          "name": "pros.validation",
+          "typecode": 0
+        },
+        {
+          "name": "pros.worker",
+          "typecode": 0
+        },
+        {
+          "name": "py_compile",
+          "typecode": 0
+        },
+        {
+          "name": "pydoc",
+          "typecode": 0
+        },
+        {
+          "name": "pydoc_data",
+          "typecode": 1
+        },
+        {
+          "name": "pydoc_data.module_docs",
+          "typecode": 0
+        },
+        {
+          "name": "pydoc_data.topics",
+          "typecode": 0
+        },
+        {
+          "name": "queue",
+          "typecode": 0
+        },
+        {
+          "name": "quopri",
+          "typecode": 0
+        },
+        {
+          "name": "random",
+          "typecode": 0
+        },
+        {
+          "name": "rlcompleter",
+          "typecode": 0
+        },
+        {
+          "name": "runpy",
+          "typecode": 0
+        },
+        {
+          "name": "secrets",
+          "typecode": 0
+        },
+        {
+          "name": "selectors",
+          "typecode": 0
+        },
+        {
+          "name": "shlex",
+          "typecode": 0
+        },
+        {
+          "name": "shutil",
+          "typecode": 0
+        },
+        {
+          "name": "signal",
+          "typecode": 0
+        },
+        {
+          "name": "socket",
+          "typecode": 0
+        },
+        {
+          "name": "socketserver",
+          "typecode": 0
+        },
+        {
+          "name": "ssl",
+          "typecode": 0
+        },
+        {
+          "name": "statistics",
+          "typecode": 0
+        },
+        {
+          "name": "string",
+          "typecode": 0
+        },
+        {
+          "name": "stringprep",
+          "typecode": 0
+        },
+        {
+          "name": "subprocess",
+          "typecode": 0
+        },
+        {
+          "name": "sysconfig",
+          "typecode": 1
+        },
+        {
+          "name": "tarfile",
+          "typecode": 0
+        },
+        {
+          "name": "tempfile",
+          "typecode": 0
+        },
+        {
+          "name": "textwrap",
+          "typecode": 0
+        },
+        {
+          "name": "threading",
+          "typecode": 0
+        },
+        {
+          "name": "tkinter",
+          "typecode": 1
+        },
+        {
+          "name": "tkinter.commondialog",
+          "typecode": 0
+        },
+        {
+          "name": "tkinter.constants",
+          "typecode": 0
+        },
+        {
+          "name": "tkinter.dialog",
+          "typecode": 0
+        },
+        {
+          "name": "tkinter.filedialog",
+          "typecode": 0
+        },
+        {
+          "name": "tkinter.messagebox",
+          "typecode": 0
+        },
+        {
+          "name": "tkinter.simpledialog",
+          "typecode": 0
+        },
+        {
+          "name": "tkinter.ttk",
+          "typecode": 0
+        },
+        {
+          "name": "tkinterdnd2",
+          "typecode": 1
+        },
+        {
+          "name": "tkinterdnd2.TkinterDnD",
+          "typecode": 0
+        },
+        {
+          "name": "token",
+          "typecode": 0
+        },
+        {
+          "name": "tokenize",
+          "typecode": 0
+        },
+        {
+          "name": "tracemalloc",
+          "typecode": 0
+        },
+        {
+          "name": "tty",
+          "typecode": 0
+        },
+        {
+          "name": "typing",
+          "typecode": 0
+        },
+        {
+          "name": "unittest",
+          "typecode": 1
+        },
+        {
+          "name": "unittest._log",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.async_case",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.case",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.loader",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.main",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.result",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.runner",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.signals",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.suite",
+          "typecode": 0
+        },
+        {
+          "name": "unittest.util",
+          "typecode": 0
+        },
+        {
+          "name": "urllib",
+          "typecode": 1
+        },
+        {
+          "name": "urllib.error",
+          "typecode": 0
+        },
+        {
+          "name": "urllib.parse",
+          "typecode": 0
+        },
+        {
+          "name": "urllib.request",
+          "typecode": 0
+        },
+        {
+          "name": "urllib.response",
+          "typecode": 0
+        },
+        {
+          "name": "uuid",
+          "typecode": 0
+        },
+        {
+          "name": "webbrowser",
+          "typecode": 0
+        },
+        {
+          "name": "xml",
+          "typecode": 1
+        },
+        {
+          "name": "xml.etree",
+          "typecode": 1
+        },
+        {
+          "name": "xml.etree.ElementInclude",
+          "typecode": 0
+        },
+        {
+          "name": "xml.etree.ElementPath",
+          "typecode": 0
+        },
+        {
+          "name": "xml.etree.ElementTree",
+          "typecode": 0
+        },
+        {
+          "name": "xml.etree.cElementTree",
+          "typecode": 0
+        },
+        {
+          "name": "xml.parsers",
+          "typecode": 1
+        },
+        {
+          "name": "xml.parsers.expat",
+          "typecode": 0
+        },
+        {
+          "name": "xml.sax",
+          "typecode": 1
+        },
+        {
+          "name": "xml.sax._exceptions",
+          "typecode": 0
+        },
+        {
+          "name": "xml.sax.expatreader",
+          "typecode": 0
+        },
+        {
+          "name": "xml.sax.handler",
+          "typecode": 0
+        },
+        {
+          "name": "xml.sax.saxutils",
+          "typecode": 0
+        },
+        {
+          "name": "xml.sax.xmlreader",
+          "typecode": 0
+        },
+        {
+          "name": "xmlrpc",
+          "typecode": 1
+        },
+        {
+          "name": "xmlrpc.client",
+          "typecode": 0
+        },
+        {
+          "name": "zipfile",
+          "typecode": 1
+        },
+        {
+          "name": "zipfile._path",
+          "typecode": 1
+        },
+        {
+          "name": "zipfile._path.glob",
+          "typecode": 0
+        },
+        {
+          "name": "zipimport",
+          "typecode": 0
+        }
+      ]
+    }
+  },
+  "pros_version": "1.5.1",
+  "pyinstaller_version": "6.22.1",
+  "schema_version": 1
+}

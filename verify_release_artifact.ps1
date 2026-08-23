@@ -138,7 +138,6 @@ foreach ($Name in $ExpectedRuntimeInventory.Keys) {
     }
 }
 $ExpectedPillowNative = @{
-    freetype2 = "2.14.3"
     littlecms2 = "2.19"
     webp = "1.6.0"
     avif = "1.4.2"
@@ -153,6 +152,14 @@ foreach ($Name in $ExpectedPillowNative.Keys) {
     if ($Actual -ne $Expected) {
         throw "Packaged Pillow native component $Name mismatch: expected $Expected, found $Actual."
     }
+}
+# Pillow's pinned wheel contains its FreeType extension, and the release
+# environment verifier audits it there. PROS does not render fonts through
+# Pillow at runtime, so PyInstaller deliberately leaves that unused extension
+# out of the one-file executable. A non-null value here would signal an
+# unaudited expansion of the frozen payload.
+if ($null -ne $Report.runtime_inventory.pillow_native.freetype2) {
+    throw "The packaged executable unexpectedly contains Pillow's unused FreeType extension."
 }
 if ($Report.runtime_inventory.pillow_flags.libjpeg_turbo -ne $true -or
     $Report.runtime_inventory.pillow_flags.zlib_ng -ne $true) {
